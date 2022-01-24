@@ -22,12 +22,9 @@ use Illuminate\Support\Facades\File;
 // 3. If URL starts with /api then it was supposed to use our API so return "NOT FOUND" (404) error
 // 4. Otherwise this URL is probably used by the Angular frontend so return that and leave the error handling to JavaScript.
 
-Route::any('/api', function() {
+Route::get('/api{any}', function() {
     abort(404);
-});
-Route::any('/api/{any}', function() {
-    abort(404);
-});
+})->where('any', '.*');
 
 Route::fallback(function () {
     return File::get(public_path() . '/angular-assets/index.html');
