@@ -1,0 +1,4 @@
+# By default Git will convert line endings to the windows "\r\n" style after checking out a commit
+# However this breaks bash scripts that need to run inside linux so we ensure those are checked out
+# with the linux style LF ("\n") line endings.
+*.sh text eol=lf
