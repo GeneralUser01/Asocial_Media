@@ -3,15 +3,15 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { ShowThreadComponent } from './show-thread/show-thread.component';
-import { ThreadListComponent } from './thread-list/thread-list.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
+import { PostListComponent } from './post-list/post-list.component';
+import { PostComponent } from './post/post.component';
 
 const routes: Routes = [
-  { path: '', component: ThreadListComponent, },
+  { path: '', component: PostListComponent, },
   { path: 'register', component: RegisterComponent, },
   { path: 'login', component: LoginComponent, },
-  { path: 'thread/:threadId', component: ShowThreadComponent, },
+  { path: 'post/:postId', component: PostComponent, },
   { path: 'user/:username', component: UserDetailsComponent, },
   // This should be last:
   { path: '**', component: PageNotFoundComponent, },

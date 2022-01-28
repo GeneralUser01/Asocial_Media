@@ -8,22 +8,22 @@ import { APP_BASE_HREF } from '@angular/common';
 import { AppComponent } from './app.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { LoginComponent } from './login/login.component';
-import { ThreadListComponent } from './thread-list/thread-list.component';
-import { ShowThreadComponent } from './show-thread/show-thread.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
+import { PostListComponent } from './post-list/post-list.component';
+import { PostComponent } from './post/post.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PageNotFoundComponent,
     LoginComponent,
-    ThreadListComponent,
-    ShowThreadComponent,
     UserDetailsComponent,
     RegisterComponent,
-    ProfileComponent
+    ProfileComponent,
+    PostListComponent,
+    PostComponent
   ],
   imports: [
     BrowserModule,
