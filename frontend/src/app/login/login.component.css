@@ -1,0 +1,19 @@
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.margin-top {
+    margin-top: 2em;
+}
+
+.usernameLabel {
+    margin-right: 2%;
+}
+.passwordLabel {
+    margin-right: 2.25%;
+}
+
+#btn-login {
+    width: 4em;
+}
