@@ -16,7 +16,20 @@ See [Installation - Laravel - The PHP Framework For Web Artisans](https://larave
 
 For Windows this means that you must have Windows Subsystem for Linux (wsl) activated (note that this is version 2 of wsl not the simpler version 1) and Docker Desktop installed.
 
-To get started you should open a wsl command line prompt in the `backend` folder, VS Code makes this quite easy but you can also just type `wsl` in a normal terminal to open a wsl command line in the same folder. To install Laravel dependencies just run the `install-sail.sh` bash script. After that you can run `./vendor/bin/sail up` to start the backend inside docker.
+To get started you should open a wsl command line prompt in the `backend` folder, VS Code makes this quite easy but you can also just type `wsl` in a normal terminal to open a wsl command line in the same folder. Then you should do the following:
+
+- To install Laravel dependencies just run the `./install-sail.sh` bash script.
+- Configure your environment, probably by copying the `.env.sail-example` to a file named `.env`.
+- Run `./vendor/bin/sail build` to ensure the docker container is built correctly.
+- Now you can use `./vendor/bin/sail up` to start the backend inside docker.
+- When the server is running inside Sail you should also run some commands to configure it correctly:
+  - `./vendor/bin/sail artisan migrate` to ensure that the database running inside docker is configured correctly.
+    - Alternatively use `./vendor/bin/sail artisan migrate:fresh --seed` to also add example data to database.
+  - `./vendor/bin/sail artisan key:generate` to set the `APP_KEY` environment variable in the `.env` file to a new key.
+
+The server will be made accessible at `localhost:80` and you can also access [phpMyAdmin](https://www.phpmyadmin.net/) at `localhost:8080` to inspect the docker container's MySQL database.
+
+If you want to use [TablePlus](https://tableplus.com/windows) to inspect the database then you should specify the following info: `Host`: `localhost`, `Port`: `3306`, `User`: `root`, `Password`: `password`, `Database`: `asocial_media`. Note that if you have `Chocolatey` you can also install `TablePlus` using `choco install tableplus`.
 
 #### Installing on Windows
 
