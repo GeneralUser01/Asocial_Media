@@ -26,6 +26,6 @@ use App\Http\Controllers\AngularController;
 //
 // Note: the below controllers are "Single Action Controllers", see: https://laravel.com/docs/8.x/controllers#single-action-controllers
 
-Route::get('/api{any}', ApiCatchAllController::class)->where('any', '.*');
+Route::any('/api{any}', ApiCatchAllController::class)->where('any', '.*');
 
 Route::fallback(AngularController::class);
