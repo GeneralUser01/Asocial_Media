@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { from, Observable } from 'rxjs';
+import { from, mergeMap, Observable } from 'rxjs';
 
-const AUTH_API = '/api/auth/';
+const AUTH_API = '/api/';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -15,20 +15,37 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  /** Get a new token from the server that uniquely identifies this session.
+   * This token also protects against cross-site request forgery. */
+  getCsrfToken() {
+    return this.http.get('/sanctum/csrf-cookie');
+  }
+
   login(username: string, password: string): Observable<any> {
-   // return from(["not done yet"]);
-    return this.http.post(AUTH_API + 'signin', {
-      username,
-      password
-    }, httpOptions);
+    return this.getCsrfToken()
+      .pipe(mergeMap(() => {
+        // return from(["not done yet"]);
+        return this.http.post(AUTH_API + 'login', {
+          name: username,
+          password
+        }, httpOptions);
+      }))
+  }
+
+  logout(): Observable<any> {
+    return this.http.post(AUTH_API + 'logout', {}, httpOptions);
   }
 
   register(username: string, email: string, password: string): Observable<any> {
-    //return from(["not done yet"]);
-    return this.http.post(AUTH_API + 'signup', {
-      username,
-      email,
-      password
-    }, httpOptions);
+    return this.getCsrfToken()
+      .pipe(mergeMap(() => {
+        //return from(["not done yet"]);
+        return this.http.post(AUTH_API + 'register', {
+          name: username,
+          email,
+          password,
+          password_confirmation: password,
+        }, httpOptions);
+      }))
   }
 }
