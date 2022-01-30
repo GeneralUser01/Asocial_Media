@@ -35,6 +35,10 @@ If you want to use [TablePlus](https://tableplus.com/windows) to inspect the dat
 
 You will need PHP and [Composer](https://getcomposer.org/) (Dependency Manager for PHP).
 
+One easy way to install this is using the [`XAMPP`](https://www.apachefriends.org/index.html) development environment.
+
+##### Using Chocolatey
+
 If you have the [Chocolatey](https://chocolatey.org/) package manager installed then you can run `choco install composer` to install both PHP and Composer.
 
 After you have PHP and Composer installed you can run `composer install` in the `backend` folder to install all the needed dependencies. Note that if you get an error like `the requested PHP extension fileinfo is missing from your system` when trying to run that command then you might need to manually edit the `C:\tools\php81\php.ini` file to add the line `extension=php_fileinfo` into it.
@@ -51,4 +55,4 @@ In short you should install `npm`, see [Downloading and installing Node.js and n
 
 Once you have `npm` you can install the Angular CLI (`ng`) using `npm install -g @angular/cli` which you can then use in the `frontend` folder to build and serve the project.
 
-After that you can use `ng build` to build the frontend once or `ng build --watch` to keep building it after every change. The output files will be written to `backend/public/angular-assets/` and will be served by the Laravel backend.
+After that you can use `ng build` to build the frontend once or `ng build --watch` to keep building it after every change. The output files will be written to `backend/public/angular-assets/` and will be served by the Laravel backend. For faster build times during development you can also use `ng build --watch --configuration development` or `npm run watch`.
