@@ -1,1 +1,12 @@
-<p>post works!</p>
+<ng-container *ngIf="!!post; else noPost">
+    <h2>{{post?.title}}</h2>
+    <p>{{post?.body}}</p>
+</ng-container>
+
+<ng-template #noPost>
+    <h2 *ngIf="!isLoading; else loadingPost">Sorry, but this post doesn't exist.</h2>
+</ng-template>
+
+<ng-template #loadingPost>
+    <h2 >Loading Post...</h2>
+</ng-template>
