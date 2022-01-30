@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
   isLoginFailed = false;
   errorMessage = '';
   roles: string[] = [];
+  serverErrors = { username: null, password: null };
 
   constructor(private authService: AuthService, private tokenStorage: TokenStorageService) { }
 
@@ -27,6 +28,11 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
+    // Forget previous server errors:
+    this.serverErrors = { username: null, password: null };
+    this.isLoginFailed = false;
+    this.errorMessage = '';
+
     const { username, password } = this.form;
 
     this.authService.login(username, password).subscribe(
@@ -41,6 +47,25 @@ export class LoginComponent implements OnInit {
       },
       err => {
         this.errorMessage = err.error.message;
+        const errors = err.error.errors;
+        if (errors && typeof errors === 'object') {
+
+          // Append field errors to total error message:
+          for (const errorArray of Object.values(errors)) {
+            if (!errorArray || !Array.isArray(errorArray)) {
+              continue;
+            }
+            for (const error of errorArray) {
+              if (typeof error !== 'string') continue;
+              this.errorMessage += '\n' + error;
+            }
+          }
+
+          // Show errors next to the fields they are related to (disabled since incorrect password gives an email error):
+          //this.serverErrors.username = errors.email || null;
+          //this.serverErrors.password = errors.password || null;
+        }
+
         this.isLoginFailed = true;
       }
     );

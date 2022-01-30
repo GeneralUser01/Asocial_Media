@@ -15,6 +15,7 @@ export class RegisterComponent implements OnInit {
   isSuccessful = false;
   isSignUpFailed = false;
   errorMessage = '';
+  serverErrors = { username: null, email: null, password: null };
 
   constructor(private authService: AuthService) { }
 
@@ -22,16 +23,29 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
+    // Forget previous server errors:
+    this.serverErrors = { username: null, email: null, password: null };
+    this.errorMessage = '';
+    this.isSignUpFailed = false;
+
     const { username, email, password } = this.form;
 
     this.authService.register(username, email, password).subscribe({
       next: (data) => {
-        console.log(data);
+        console.log('Registered successfully: ', data);
         this.isSuccessful = true;
         this.isSignUpFailed = false;
       },
       error: (err) => {
+        console.log('Registered failed: ', err);
         this.errorMessage = err.error.message;
+        const errors = err.error.errors;
+        if (errors) {
+          this.serverErrors.username = errors.name || null;
+          this.serverErrors.email = errors.email || null;
+          this.serverErrors.password = errors.password || null;
+        }
+
         this.isSignUpFailed = true;
       }
     });

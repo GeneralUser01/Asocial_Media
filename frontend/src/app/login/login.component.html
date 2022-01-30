@@ -24,13 +24,19 @@
             [(ngModel)]="form.username"
             required
             #username="ngModel"
+            (input)="serverErrors.username = null"
           />
           <div
             class="alert alert-danger"
             role="alert"
-            *ngIf="username.errors && f.submitted"
+            *ngIf="(username.errors && f.submitted) || serverErrors.username"
           >
-            Username is required!
+            <div *ngIf="username?.errors?.['required']">
+              Username is required!
+            </div>
+            <ng-container *ngIf="serverErrors.username">
+              <div *ngFor="let error of serverErrors.username;">{{ error }}</div>
+            </ng-container>
           </div>
         </div>
         <div class="form-group">
@@ -43,16 +49,20 @@
             required
             minlength="6"
             #password="ngModel"
+            (input)="serverErrors.password = null"
           />
           <div
             class="alert alert-danger"
             role="alert"
-            *ngIf="password.errors && f.submitted"
+            *ngIf="(password.errors && f.submitted) || serverErrors.password"
           >
             <div *ngIf="password?.errors?.['required']">Password is required</div>
             <div *ngIf="password?.errors?.['minlength']">
               Password must be at least 6 characters
             </div>
+            <ng-container  *ngIf="serverErrors.password">
+              <div *ngFor="let error of serverErrors.password;">{{ error }}</div>
+            </ng-container>
           </div>
         </div>
         <div class="form-group">

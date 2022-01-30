@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { from, mergeMap, Observable } from 'rxjs';
+import { mergeMap, Observable } from 'rxjs';
 
 const AUTH_API = '/api/';
 
@@ -24,9 +24,8 @@ export class AuthService {
   login(username: string, password: string): Observable<any> {
     return this.getCsrfToken()
       .pipe(mergeMap(() => {
-        // return from(["not done yet"]);
         return this.http.post(AUTH_API + 'login', {
-          name: username,
+          email: username,
           password
         }, httpOptions);
       }))
@@ -39,7 +38,6 @@ export class AuthService {
   register(username: string, email: string, password: string): Observable<any> {
     return this.getCsrfToken()
       .pipe(mergeMap(() => {
-        //return from(["not done yet"]);
         return this.http.post(AUTH_API + 'register', {
           name: username,
           email,
