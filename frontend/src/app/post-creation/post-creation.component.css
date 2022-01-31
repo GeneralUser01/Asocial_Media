@@ -1,0 +1,11 @@
+#post-title, #post-content {
+    width: 100%;
+}
+
+#post-content {
+    height: 50vh;
+}
+
+label {
+    font-size: 3vw;
+}

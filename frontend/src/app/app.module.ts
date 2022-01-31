@@ -13,6 +13,7 @@ import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
 import { PostListComponent } from './post-list/post-list.component';
 import { PostComponent } from './post/post.component';
+import { PostCreationComponent } from './post-creation/post-creation.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { PostComponent } from './post/post.component';
     RegisterComponent,
     ProfileComponent,
     PostListComponent,
-    PostComponent
+    PostComponent,
+    PostCreationComponent
   ],
   imports: [
     BrowserModule,
