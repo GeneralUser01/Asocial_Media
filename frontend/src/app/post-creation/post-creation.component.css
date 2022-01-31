@@ -1,4 +1,4 @@
-#post-title, #post-content {
+#post-title, #post-content, #btn-submit-post {
     width: 100%;
 }
 
@@ -7,5 +7,18 @@
 }
 
 label {
-    font-size: 3vw;
+    font-size: 1.5rem;
+}
+
+.plain-row {
+    display: flex;
+    flex-direction: row;
+}
+.plain-row > .plain-row > label {
+    font-size: 1rem;
+}
+
+#btn-browse-images {
+    height: fit-content;
+    font-size: 0.8rem;
 }

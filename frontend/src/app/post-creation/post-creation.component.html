@@ -1,7 +1,62 @@
 <h2>Post creation</h2>
 
-<label for="post-title">Title:</label>
-<input id="post-title" type="text">
+<form
+*ngIf="!isSuccessful"
+name="form"
+(ngSubmit)="f.form.valid && onSubmit()"
+#f="ngForm"
+novalidate
+>
+    <label for="post-title">Title:</label>
+    <input
+    id="post-title"
+    type="text"
+    class="form-control"
+    name="title"
+    [(ngModel)]="form.title"
+    required
+    minlength="1"
+    maxlength="200"
+    #title="ngModel"
+    (input)="serverErrors.title = null">
+    <div class="alert-danger" *ngIf="(title.errors && f.submitted) || serverErrors.title">
+      <div *ngIf="title?.errors?.['required']">title is required</div>
+      <div *ngIf="title?.errors?.['minlength']">
+        title must be at least 1 character
+      </div>
+      <div *ngIf="title?.errors?.['maxlength']">
+        title must be at most 200 characters
+      </div>
+      <ng-container *ngIf="serverErrors.title">
+        <div *ngFor="let error of serverErrors.title;">{{ error }}</div>
+      </ng-container>
+    </div>
 
-<label style="margin-top: 2vh;" for="post-content">Content:</label>
-<textarea id="post-content" type="text"></textarea>
+    <div style="margin-top: 2vh;" class="plain-row">
+        <label for="post-content">Content:</label>
+        <div style="margin-left: auto; margin-top: 2vh;" class="plain-row">
+            <label>Image attachment: </label>
+            <button id="btn-browse-images">Browse</button>
+        </div>
+    </div>
+    <textarea
+    id="post-content"
+    type="text"
+    class="form-control"
+    name="content"
+    [(ngModel)]="form.content"
+    required
+    minlength="1"
+    maxlength="20000"
+    #title="ngModel"
+    (input)="serverErrors.content = null"></textarea>
+
+    <button style="margin-top: 2vh;" id="btn-submit-post">Submit post</button>
+    <div class="alert alert-warning" *ngIf="f.submitted && isSubmitPostFailed">
+        Post upload failed!<br />{{ errorMessage }}
+    </div>
+</form>
+
+<div class="alert alert-success" *ngIf="isSuccessful">
+    Your post upload is successful!
+</div>
