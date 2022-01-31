@@ -16,13 +16,14 @@
         novalidate
       >
         <div class="form-group">
-          <label for="username">Username</label>
+          <label for="username">Email</label>
           <input
             type="text"
             class="form-control"
             name="username"
             [(ngModel)]="form.username"
             required
+            email
             #username="ngModel"
             (input)="serverErrors.username = null"
           />
@@ -32,7 +33,10 @@
             *ngIf="(username.errors && f.submitted) || serverErrors.username"
           >
             <div *ngIf="username?.errors?.['required']">
-              Username is required!
+              Email is required!
+            </div>
+            <div *ngIf="username?.errors?.['email']">
+              Email must be a valid email address
             </div>
             <ng-container *ngIf="serverErrors.username">
               <div *ngFor="let error of serverErrors.username;">{{ error }}</div>
