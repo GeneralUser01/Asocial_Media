@@ -1,8 +1,4 @@
-#thread-list {
-    height: 20vh;
-}
-
-#btn-post-thread {
-    height: 10%;
-    width: 100%;
-}
+/* #thread-list {
+    height: 38em;
+    overflow: auto;
+} */
