@@ -17,6 +17,7 @@ class CreateThreadsTable extends Migration
             $table->id();
             $table->string('title');
             $table->text('body');
+            // $table->string('image');
             $table->timestamps();
         });
         Schema::create('post_comments', function (Blueprint $table) {
