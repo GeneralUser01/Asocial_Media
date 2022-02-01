@@ -33,23 +33,27 @@ novalidate
     </div>
 
     <div style="margin-top: 2vh;" class="plain-row">
-        <label for="post-content">Content:</label>
+        <label for="post-body">Content:</label>
         <div style="margin-left: auto; margin-top: 2vh;" class="plain-row">
             <label>Image attachment: </label>
-            <button id="btn-browse-images">Browse</button>
+            <input
+            style="display: none"
+            type="file"
+            #fileInput>
+            <button (click)="fileInput.click()" id="btn-browse-images">Browse</button>
         </div>
     </div>
     <textarea
-    id="post-content"
+    id="post-body"
     type="text"
     class="form-control"
-    name="content"
-    [(ngModel)]="form.content"
+    name="body"
+    [(ngModel)]="form.body"
     required
     minlength="1"
     maxlength="20000"
-    #title="ngModel"
-    (input)="serverErrors.content = null"></textarea>
+    #body="ngModel"
+    (input)="serverErrors.body = null"></textarea>
 
     <button style="margin-top: 2vh;" id="btn-submit-post">Submit post</button>
     <div class="alert alert-warning" *ngIf="f.submitted && isSubmitPostFailed">

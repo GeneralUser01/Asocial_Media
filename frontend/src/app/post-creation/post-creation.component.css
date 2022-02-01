@@ -1,8 +1,8 @@
-#post-title, #post-content, #btn-submit-post {
+#post-title, #post-body, #btn-submit-post {
     width: 100%;
 }
 
-#post-content {
+#post-body {
     height: 50vh;
 }
 
