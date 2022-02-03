@@ -10,6 +10,10 @@ import { Post, PostService } from '../_services/post.service';
 export class PostComponent implements OnInit {
   post: null | Post = null;
   isLoading = true;
+  // isSuccessful = false;
+  // isSubmitCommentFailed = false;
+  // errorMessage = '';
+  // serverErrors = { content: null };
 
   constructor(private postService: PostService, private activatedRoute: ActivatedRoute) { }
 
@@ -28,5 +32,4 @@ export class PostComponent implements OnInit {
       }
     })
   }
-
 }
