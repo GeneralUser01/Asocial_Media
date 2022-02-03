@@ -15,9 +15,9 @@ class CreateThreadsTable extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('body');
-            // $table->string('image');
+            $table->string('title')->default('Default content test spawn');
+            $table->text('body')->default('A default filler');
+            $table->binary('image')->default('');
             $table->timestamps();
         });
         Schema::create('post_comments', function (Blueprint $table) {
