@@ -2,7 +2,17 @@
 <!-- <section id="thread-list"> -->
 <a *ngFor="let post of posts" routerLink="posts/{{ post.id }}">
     <div style="padding: 5px; margin: 10px; border: black solid 1px; border-radius: 5px;">
-        {{post.title}}
+        {{ post.title }}
     </div>
 </a>
+
+<!-- <a *ngFor="let post of posts | paginate: {itemsPerPage: 10,
+                                          currentPage: {{ post }} }"></a> -->
+
+<!-- <ngb-pagination [(page)]="page" [maxSize]="5" [rotate]="true" [boundaryLinks]="true"></ngb-pagination> -->
+<!-- <mat-paginator #paginator [length]="100"
+              [pageSize]="10"
+              [pageSizeOptions]="[5, 10, 25, 100]"
+              aria-label="Select page">
+</mat-paginator> -->
 <!-- </section> -->

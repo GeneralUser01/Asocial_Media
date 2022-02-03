@@ -1,5 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit } from '@angular/core';
 import { Post, PostService } from '../_services/post.service';
+
+// /**
+//  * @title Paginator
+//  */
+// @Component({
+//   selector: 'mat-paginator',
+//   templateUrl: './post-list.component.html',
+// })
+// export class PaginatorOverview { }
 
 @Component({
   selector: 'app-post-list',
@@ -14,9 +23,4 @@ export class PostListComponent implements OnInit {
   ngOnInit(): void {
     this.postService.getPosts().subscribe(result => this.posts = result);
   }
-
-  postThread(): void {
-    console.log('test');
-  }
-
 }
