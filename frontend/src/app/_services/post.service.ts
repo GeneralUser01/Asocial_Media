@@ -7,6 +7,7 @@ export interface Post {
   id: number,
   title: string,
   body: string,
+  image: File,
   created_at: string,
   updated_at: string,
 }
@@ -34,7 +35,7 @@ export class PostService {
   getPosts() {
     return this.http.get<Post[]>(this.postUrl, this.httpOptions);
   }
-  addPost(title: string, body: string, image?: string) {
+  addPost(title: string, body: string, image?: File | null) {
     return this.getCsrfToken()
       .pipe(mergeMap(() => {
       return this.http.post<Post>(this.postUrl, {

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PostService } from '../_services/post.service';
+import { HttpClient } from '@angular/common/http'
 
 @Component({
   selector: 'app-post-creation',
@@ -10,20 +11,40 @@ import { PostService } from '../_services/post.service';
 export class PostCreationComponent implements OnInit {
   form: any = {
     title: null,
-    body: null
+    body: null,
+    image: null
   };
   isSuccessful = false;
   isSubmitPostFailed = false;
   errorMessage = '';
   serverErrors = { title: null, body: null };
 
-  selectedFile!: File;
+  // selectedFile!: File;
 
-  onFileChanged(event: { target: { files: File[]; }; }) {
-    this.selectedFile = event.target.files[0]
+  // onFileChanged(event: { target: { files: File[]; }; }) {
+  //   this.selectedFile = event.target.files[0]
+  // }
+
+  selectedFile: File | null = null;
+  fileName = '';
+
+  fileSelect(event: any) {
+    this.selectedFile = <File>event.target.files[0].name;
+    console.log('Selected file: ' + this.selectedFile);
   }
 
-  constructor(private postService: PostService) { }
+  // url: any;
+  // msg = "";
+
+  // let reader = new FileReader();
+  // reader.readAsDataURL(<File>event.target.files[0]);
+
+  // reader.onload = (_event) => {
+  //   this.msg = "";
+  //   this.url = reader.result;
+  // }
+
+  constructor(private http: HttpClient, private postService: PostService) { }
 
   ngOnInit(): void {
   }
@@ -35,10 +56,13 @@ export class PostCreationComponent implements OnInit {
     this.isSubmitPostFailed = false;
 
     const { title, body } = this.form;
+    this.selectedFile = this.form
+    // let image = null;
+    // if (this.selectedFile !== null) {
+    //   image = new FormData().append('image', this.selectedFile, this.selectedFile.name);
+    // }
 
-    // uploadData.append('myFile', this.selectedFile, this.selectedFile.name);
-
-    this.postService.addPost(title, body).subscribe({
+    this.postService.addPost(title, body, this.selectedFile).subscribe({
       next: (data) => {
         console.log('Post uploaded successfully: ', data);
         this.isSuccessful = true;
@@ -56,5 +80,11 @@ export class PostCreationComponent implements OnInit {
         this.isSubmitPostFailed = true;
       }
     });
+    //   if (this.selectedFile) {
+    //   const formData = new FormData();
+    //   formData.append("image", this.selectedFile);
+    //   const upload$ = this.http.post("../api/posts/", formData);
+    //   upload$.subscribe();
+    // }
   }
 }
