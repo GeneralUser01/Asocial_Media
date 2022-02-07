@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class PostsTableSeeder extends Seeder
@@ -17,14 +18,11 @@ class PostsTableSeeder extends Seeder
         // Let's truncate our existing records to start from scratch.
         Post::query()->delete();
 
-        $faker = \Faker\Factory::create();
-
-        // And now, let's create a few threads in our database:
+        // And now, let's create a few posts in our database:
         for ($i = 0; $i < 30; $i++) {
-            Post::create([
-                'title' => $faker->sentence,
-                'body' => $faker->paragraph,
-            ]);
+            Post::factory()
+                ->for(User::inRandomOrder()->first())
+                ->create();
         }
     }
 }

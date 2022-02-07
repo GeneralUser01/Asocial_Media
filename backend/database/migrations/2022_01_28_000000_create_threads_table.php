@@ -14,10 +14,23 @@ class CreateThreadsTable extends Migration
      */
     public function up()
     {
+        // Set it up so that a user can have multiple roles. For more info see:
+        // https://stackoverflow.com/questions/37093523/laravel-how-to-check-if-user-is-admin
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+        Schema::create('user_roles', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
+        });
+
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('body');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             // $table->binary('image')->nullable();
             $table->string('image_mime_type')->nullable();
             $table->timestamps();
@@ -28,6 +41,7 @@ class CreateThreadsTable extends Migration
             $table->id();
             $table->text('content');
             $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -39,6 +53,9 @@ class CreateThreadsTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('roles');
+        Schema::dropIfExists('user_roles');
+
         Schema::dropIfExists('posts');
         Schema::dropIfExists('post_comments');
     }

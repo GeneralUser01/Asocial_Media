@@ -41,4 +41,26 @@ class User extends Authenticatable // implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /** Get the posts that this user has made. */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+    /** Get the comments that this user has made. */
+    public function comments()
+    {
+        return $this->hasMany(PostComment::class);
+    }
+
+    /** Get the roles that this user has. */
+    public function roles() {
+        return $this->belongsToMany(Role::class, 'user_roles');
+    }
+
+    /** Check if this user has the administrator role. */
+    public function isAdministrator()
+    {
+        return $this->roles()->where('name', 'Administrator')->exists();
+    }
 }

@@ -8,6 +8,18 @@ use Illuminate\Http\Request;
 
 class PostCommentController extends Controller
 {
+    // Authorization:
+    //
+    // We pass on the post that the comment is related to when checking
+    // permissions for each method.
+    //
+    // For info about policy method names as related to controller method names
+    // see:
+    // https://laravel.com/docs/8.x/authorization#authorizing-resource-controllers
+    //
+    // For info about authorizing using multiple arguments see:
+    // https://laravel.com/docs/8.x/authorization#supplying-additional-context
+
     /**
      * Display a listing of the resource.
      *
@@ -15,6 +27,8 @@ class PostCommentController extends Controller
      */
     public function index(Post $post)
     {
+        $this->authorize('viewAny', [PostComment::class, $post]);
+
         return $post->comments()->get();
     }
 
@@ -26,8 +40,11 @@ class PostCommentController extends Controller
      */
     public function store(Request $request, Post $post)
     {
+        $this->authorize('create', [PostComment::class, $post]);
+
         $comment = new PostComment($request->all());
         $comment->post_id = $post->id;
+        $comment->user_id = $request->user()->id;
         $comment->save();
         return $comment;
     }
@@ -40,6 +57,8 @@ class PostCommentController extends Controller
      */
     public function show(Post $post, PostComment $comment)
     {
+        $this->authorize('view', [$comment, $post]);
+
         return $comment;
     }
 
@@ -52,6 +71,8 @@ class PostCommentController extends Controller
      */
     public function update(Request $request, Post $post, PostComment $comment)
     {
+        $this->authorize('update', [$comment, $post]);
+
         $comment->update($request->all());
 
         return $comment;
@@ -65,6 +86,8 @@ class PostCommentController extends Controller
      */
     public function destroy(Post $post, PostComment $comment)
     {
+        $this->authorize('delete', [$comment, $post]);
+
         $comment->delete();
 
         return 204;

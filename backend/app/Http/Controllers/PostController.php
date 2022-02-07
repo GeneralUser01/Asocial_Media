@@ -8,6 +8,21 @@ use Illuminate\Http\Request;
 class PostController extends Controller
 {
     /**
+     * Create the controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        // Set up authorization checks for the default "resource" controller
+        // methods.
+        //
+        // For more info see:
+        // https://laravel.com/docs/8.x/authorization#authorizing-resource-controllers
+        $this->authorizeResource(Post::class, 'post');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -26,6 +41,7 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $post = new Post($request->only('title', 'body'));
+        $post->user_id = $request->user()->id;
         if (isset($request->image)) {
             $file = $request->file('image');
 
@@ -53,6 +69,8 @@ class PostController extends Controller
     }
     public function showImage(Post $post)
     {
+        $this->authorize('view', $post);
+
         return response($post->image)->header('Content-Type', $post->image_mime_type);
     }
 

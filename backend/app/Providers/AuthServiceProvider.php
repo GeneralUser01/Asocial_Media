@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Post;
+use App\Models\PostComment;
+use App\Models\Role;
+use App\Policies\PostCommentPolicy;
+use App\Policies\PostPolicy;
+use App\Policies\RolePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -16,6 +22,12 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        //
+        // These can be auto discovered but we try to be explicit. For more info
+        // see: https://laravel.com/docs/8.x/authorization#registering-policies
+        Post::class => PostPolicy::class,
+        PostComment::class => PostCommentPolicy::class,
+        Role::class => RolePolicy::class,
     ];
 
     /**
