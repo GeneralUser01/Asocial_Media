@@ -25,7 +25,20 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        return Post::create($request->all());
+        $post = new Post($request->only('title', 'body'));
+        if (isset($request->image)) {
+            $file = $request->file('image');
+
+            $contents = $file->openFile()->fread($file->getSize());
+            $post->image = $contents;
+            $post->image_mime_type = $file->getClientMimeType();
+
+            // Alternative for storing images to filesystem instead of database
+            // $imageName = time().'.'.$request->image->extension();
+            // $post->image = $request->image->storeAs('images', $imageName);
+        }
+        $post->save();
+        return $post;
     }
 
     /**
@@ -37,6 +50,10 @@ class PostController extends Controller
     public function show(Post $post)
     {
         return $post;
+    }
+    public function showImage(Post $post)
+    {
+        return response($post->image)->header('Content-Type', $post->image_mime_type);
     }
 
     /**
