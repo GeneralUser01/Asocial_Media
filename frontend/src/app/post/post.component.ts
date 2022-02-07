@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { catchError, of } from 'rxjs';
+import { PostComment, PostCommentService } from '../_services/post-comment.service';
 import { Post, PostService } from '../_services/post.service';
 
 @Component({
@@ -9,13 +11,14 @@ import { Post, PostService } from '../_services/post.service';
 })
 export class PostComponent implements OnInit {
   post: null | Post = null;
+  comments: PostComment[] = [];
   isLoading = true;
-  // isSuccessful = false;
-  // isSubmitCommentFailed = false;
-  // errorMessage = '';
-  // serverErrors = { content: null };
 
-  constructor(private postService: PostService, private activatedRoute: ActivatedRoute) { }
+  constructor(
+    private postService: PostService,
+    private commentService: PostCommentService,
+    private activatedRoute: ActivatedRoute,
+  ) { }
 
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe(params => {
@@ -25,11 +28,20 @@ export class PostComponent implements OnInit {
         this.isLoading = false;
       } else {
         this.isLoading = true;
-        this.postService.getPost(id).subscribe(result => {
-          this.post = result;
-          this.isLoading = false;
-        });
+
+        this.postService.getPost(id)
+          // Use null in case of errors:
+          .pipe(catchError((error) => of(null)))
+          .subscribe(result => {
+            this.post = result;
+            this.isLoading = false;
+          });
+        this.commentService.getComments(id)
+          // Use empty array in case of errors:
+          .pipe(catchError((error) => of([])))
+          .subscribe((comments) => this.comments = comments)
       }
     })
   }
+
 }

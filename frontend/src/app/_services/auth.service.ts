@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { mergeMap, Observable } from 'rxjs';
 
-const AUTH_API = '/api/';
+const AUTH_API = '../api/';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -21,12 +21,13 @@ export class AuthService {
     return this.http.get('/sanctum/csrf-cookie');
   }
 
-  login(username: string, password: string): Observable<any> {
+  login(username: string, password: string, remember: boolean): Observable<any> {
     return this.getCsrfToken()
       .pipe(mergeMap(() => {
         return this.http.post(AUTH_API + 'login', {
           email: username,
-          password
+          password,
+          remember,
         }, httpOptions);
       }))
   }

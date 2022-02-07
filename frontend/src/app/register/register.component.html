@@ -13,6 +13,7 @@
         (ngSubmit)="f.form.valid && onSubmit()"
         #f="ngForm"
         novalidate
+        appRequireConfirmation="password"
       >
         <div class="form-group">
           <label for="username">Username</label>
@@ -62,52 +63,43 @@
             </ng-container>
           </div>
         </div>
-        <div id="password-group">
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              class="form-control"
-              name="password"
-              [(ngModel)]="form.password"
-              required
-              minlength="6"
-              #password="ngModel"
-              (input)="serverErrors.password = null"
-            />
-            <div class="alert-danger" *ngIf="(password.errors && f.submitted) || serverErrors.password">
-              <div *ngIf="password?.errors?.['required']">Password is required</div>
-              <div *ngIf="password?.errors?.['minlength']">
-                Password must be at least 6 characters
-              </div>
-              <ng-container *ngIf="serverErrors.password">
-                <div *ngFor="let error of serverErrors.password;">{{ error }}</div>
-              </ng-container>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            [(ngModel)]="form.password"
+            required
+            minlength="6"
+            #password="ngModel"
+            (input)="serverErrors.password = null"
+          />
+          <div class="alert-danger" *ngIf="(password.errors && f.submitted) || serverErrors.password">
+            <div *ngIf="password?.errors?.['required']">Password is required</div>
+            <div *ngIf="password?.errors?.['minlength']">
+              Password must be at least 6 characters
             </div>
+            <ng-container *ngIf="serverErrors.password">
+              <div *ngFor="let error of serverErrors.password;">{{ error }}</div>
+            </ng-container>
           </div>
-          <div class="form-group">
-            <label for="password_confirmation">Confirm password</label>
-            <input
-              type="password"
-              class="form-control"
-              name="password_confirmation"
-              [(ngModel)]="form.password_confirmation"
-              required
-              #password_confirmation="ngModel"
-              (input)="serverErrors.password_confirmation = null"
-            />
-            <div class="alert-danger" *ngIf="(password_confirmation?.errors && f.submitted) || serverErrors.password_confirmation">
-              <div *ngIf="password_confirmation?.errors?.['required']">Password confirmation is required</div>
-              <!-- <div *ngIf="form.get('password-group').errors?.match">
-                Password confirmation must match the password - this does not
-              </div> -->
-              <ng-container *ngIf="serverErrors.password_confirmation">
-                <div *ngFor="let error of serverErrors.password_confirmation;">{{ error }}</div>
-              </ng-container>
+        </div>
+        <div class="form-group">
+          <label for="passwordConfirmation">Confirm Password</label>
+          <input
+            type="password"
+            class="form-control"
+            name="passwordConfirmation"
+            [(ngModel)]="form.passwordConfirmation"
+            #passwordConfirmation="ngModel"
+          />
+          <div class="alert-danger" *ngIf="passwordConfirmation.errors && f.submitted">
+            <div *ngIf="passwordConfirmation.errors?.['requireConfirmation']">
+              The password confirmation does not match the specified password.
             </div>
           </div>
         </div>
-
         <div class="form-group">
           <button class="btn btn-primary btn-block">Sign Up</button>
         </div>

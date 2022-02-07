@@ -1,16 +1,14 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { mergeMap, Observable } from 'rxjs';
+import { Timestamps, WithId } from '../_shared/db-types';
 
 
-export interface Post {
-  id: number,
+export interface PostContent {
   title: string,
   body: string,
-  image: File,
-  created_at: string,
-  updated_at: string,
 }
+
+export type Post = PostContent & WithId & Timestamps;
 
 @Injectable({
   providedIn: 'root'
@@ -23,26 +21,29 @@ export class PostService {
 
   constructor(private http: HttpClient) { }
 
-  /** Get a new token from the server that uniquely identifies this session.
- * This token also protects against cross-site request forgery. */
-    getCsrfToken() {
-    return this.http.get('/sanctum/csrf-cookie');
-  }
-
   getPost(postId: number | string) {
     return this.http.get<Post>(this.postUrl + postId, this.httpOptions);
+  }
+  getPostImage(postId: number | string) {
+    return this.http.get(this.postUrl + postId + '/image', this.httpOptions);
   }
   getPosts() {
     return this.http.get<Post[]>(this.postUrl, this.httpOptions);
   }
-  addPost(title: string, body: string, image?: File | null) {
-    return this.getCsrfToken()
-      .pipe(mergeMap(() => {
-      return this.http.post<Post>(this.postUrl, {
-          title,
-          body,
-          image,
-        }, this.httpOptions);
-      }))
+
+  createPost(title: string, body: string, image: Blob | null = null) {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('body', body);
+    if (image !== null) {
+      formData.append('image', image);
     }
+    return this.http.post<Post>(this.postUrl, formData, this.httpOptions);
   }
+  updatePost(post: PostContent & WithId) {
+    return this.http.put(this.postUrl, post, this.httpOptions);
+  }
+  deletePost(postId: number | string) {
+    return this.http.delete(this.postUrl + postId, this.httpOptions);
+  }
+}

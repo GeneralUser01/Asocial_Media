@@ -70,6 +70,27 @@
           </div>
         </div>
         <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              name="remember-me"
+              [(ngModel)]="form.remember"
+              #remember="ngModel"
+              (input)="serverErrors.remember = null"
+            />
+            <span> Remember me</span>
+          </label>
+          <div
+            class="alert alert-danger"
+            role="alert"
+            *ngIf="(remember.errors && f.submitted) || serverErrors.remember"
+          >
+            <ng-container  *ngIf="serverErrors.remember">
+              <div *ngFor="let error of serverErrors.remember;">{{ error }}</div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="form-group">
           <button class="btn btn-primary btn-block">
             Login
           </button>

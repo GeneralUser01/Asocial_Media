@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
-import { TokenStorageService } from '../_services/token-storage.service';
+import { UserService } from '../_services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -10,42 +10,42 @@ import { TokenStorageService } from '../_services/token-storage.service';
 export class LoginComponent implements OnInit {
   form: any = {
     username: null,
-    password: null
+    password: null,
+    remember: false,
   };
   isLoggedIn = false;
   isLoginFailed = false;
   errorMessage = '';
   roles: string[] = [];
-  serverErrors = { username: null, password: null };
+  serverErrors = { username: null, password: null, remember: null, };
 
-  constructor(private authService: AuthService, private tokenStorage: TokenStorageService) { }
+  constructor(private authService: AuthService, private userService: UserService) { }
 
   ngOnInit(): void {
-    if (this.tokenStorage.getToken()) {
+    this.userService.getCurrentUser().subscribe(user => {
+      if (!user) return;
+
       this.isLoggedIn = true;
-      this.roles = this.tokenStorage.getUser().roles;
-    }
+      //this.roles = user.roles;
+    })
   }
 
   onSubmit(): void {
     // Forget previous server errors:
-    this.serverErrors = { username: null, password: null };
+    this.serverErrors = { username: null, password: null, remember: null };
     this.isLoginFailed = false;
     this.errorMessage = '';
 
-    const { username, password } = this.form;
+    const { username, password, remember } = this.form;
 
-    this.authService.login(username, password).subscribe(
-      data => {
-        this.tokenStorage.saveToken(data.accessToken);
-        this.tokenStorage.saveUser(data);
-
+    this.authService.login(username, password, remember).subscribe({
+      next: data => {
         this.isLoginFailed = false;
         this.isLoggedIn = true;
-        this.roles = this.tokenStorage.getUser().roles;
-        this.reloadPage();
+        // this.roles = this.tokenStorage.getUser().roles;
+        window.location.reload();
       },
-      err => {
+      error: err => {
         this.errorMessage = err.error.message;
         const errors = err.error.errors;
         if (errors && typeof errors === 'object') {
@@ -64,14 +64,11 @@ export class LoginComponent implements OnInit {
           // Show errors next to the fields they are related to (disabled since incorrect password gives an email error):
           //this.serverErrors.username = errors.email || null;
           //this.serverErrors.password = errors.password || null;
+          //this.serverErrors.remember = errors.remember || null;
         }
 
         this.isLoginFailed = true;
       }
-    );
-  }
-
-  reloadPage(): void {
-    window.location.reload();
+    });
   }
 }

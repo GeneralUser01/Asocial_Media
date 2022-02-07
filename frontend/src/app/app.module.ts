@@ -15,6 +15,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { PostListComponent } from './post-list/post-list.component';
 import { PostComponent } from './post/post.component';
 import { PostCreationComponent } from './post-creation/post-creation.component';
+import { RequireConfirmationValidatorDirective } from './_shared/require-confirmation.directive';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { PostCreationComponent } from './post-creation/post-creation.component';
     ProfileComponent,
     PostListComponent,
     PostComponent,
-    PostCreationComponent
+    PostCreationComponent,
+    RequireConfirmationValidatorDirective
   ],
   imports: [
     BrowserModule,

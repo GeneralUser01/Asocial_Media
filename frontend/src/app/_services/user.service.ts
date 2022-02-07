@@ -1,29 +1,28 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Timestamps, WithId } from '../_shared/db-types';
 
-const API_URL = 'http://localhost:8080/api/test/';
+export interface UserContent {
+  name: string,
+  email: string,
+  email_verified_at: null | string,
+  roles: string[],
+}
+
+export type User = UserContent & WithId & Timestamps;
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  userUrl = '../api/user/';
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
 
   constructor(private http: HttpClient) { }
 
-  getPublicContent(): Observable<any> {
-    return this.http.get(API_URL + 'all', { responseType: 'text' });
-  }
-
-  getUserBoard(): Observable<any> {
-    return this.http.get(API_URL + 'user', { responseType: 'text' });
-  }
-
-  getModeratorBoard(): Observable<any> {
-    return this.http.get(API_URL + 'mod', { responseType: 'text' });
-  }
-
-  getAdminBoard(): Observable<any> {
-    return this.http.get(API_URL + 'admin', { responseType: 'text' });
+  getCurrentUser() {
+    return this.http.get<User>(this.userUrl, this.httpOptions);
   }
 }
