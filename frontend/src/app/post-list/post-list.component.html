@@ -1,7 +1,7 @@
 <h2>Posts</h2>
 <!-- <section id="thread-list"> -->
 <a *ngFor="let post of posts" routerLink="posts/{{ post.id }}">
-    <div style="padding: 5px; margin: 10px; border: black solid 1px; border-radius: 5px;">
+    <div>
         {{ post.title }}
     </div>
 </a>
