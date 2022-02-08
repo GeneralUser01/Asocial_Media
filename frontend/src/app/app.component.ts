@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from './_services/auth.service';
-import { User, UserService } from './_services/user.service';
+import { CurrentUser, UserService } from './_services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +11,7 @@ export class AppComponent {
   title = 'asocial-media';
 
   private roles: string[] = [];
-  user: User | null = null;
+  user: CurrentUser | null = null;
   isLoggedIn = false;
   showAdminBoard = false;
   showModeratorBoard = false;

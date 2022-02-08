@@ -66,8 +66,8 @@ export class PostComponent implements OnInit {
 
     this.commentService.getComments(this.postId)
       // Use empty array in case of errors:
-      .pipe(catchError((error) => of([])))
-      .subscribe((comments) => this.postComments = comments);
+      .pipe(catchError((error) => of(null)))
+      .subscribe((comments) => this.postComments = comments?.data ?? []);
   }
 
   onSubmit(): void {

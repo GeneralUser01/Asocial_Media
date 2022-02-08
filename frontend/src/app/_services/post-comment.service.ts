@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Timestamps, WithId } from '../_shared/db-types';
+import { map } from 'rxjs';
+import { Timestamps, WithId, Wrapped, WrappedCollection } from '../_shared/db-types';
 
 
 export interface PostCommentContent {
@@ -28,10 +29,11 @@ export class PostCommentService {
   }
 
   getComment(postId: number | string, commentId: number | string) {
-    return this.http.get<PostComment>(this.getUrl(postId) + commentId, this.httpOptions);
+    return this.http.get<Wrapped<PostComment>>(this.getUrl(postId) + commentId, this.httpOptions)
+        .pipe(map(result => result.data));
   }
-  getComments(postId: number | string) {
-    return this.http.get<PostComment[]>(this.getUrl(postId), this.httpOptions);
+  getComments(postId: number | string, page = 1) {
+    return this.http.get<WrappedCollection<PostComment[]>>(this.getUrl(postId) + '?page=' + page, this.httpOptions);
   }
 
   createComment(postId: number | string, content: string) {

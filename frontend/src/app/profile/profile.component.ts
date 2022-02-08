@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { User, UserService } from '../_services/user.service';
+import { CurrentUser, UserService } from '../_services/user.service';
 
 @Component({
   selector: 'app-profile',
@@ -8,7 +8,7 @@ import { User, UserService } from '../_services/user.service';
   encapsulation: ViewEncapsulation.None
 })
 export class ProfileComponent implements OnInit {
-  currentUser: User | null = null;
+  currentUser: CurrentUser | null = null;
 
   constructor(private userService: UserService) { }
 

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Timestamps, WithId } from '../_shared/db-types';
+import { map } from 'rxjs';
+import { Timestamps, WithId, Wrapped, WrappedCollection } from '../_shared/db-types';
 
 
 export interface PostContent {
@@ -21,13 +22,14 @@ export class PostService {
   constructor(private http: HttpClient) { }
 
   getPost(postId: number | string) {
-    return this.http.get<Post>(this.postUrl + postId, this.httpOptions);
+    return this.http.get<Wrapped<Post>>(this.postUrl + postId, this.httpOptions)
+      .pipe(map(result => result.data));
   }
   getPostImage(postId: number | string) {
     return this.http.get(this.postUrl + postId + '/image', this.httpOptions);
   }
-  getPosts() {
-    return this.http.get<Post[]>(this.postUrl, this.httpOptions);
+  getPosts(page = 1) {
+    return this.http.get<WrappedCollection<Post[]>>(this.postUrl + '?page=' + page, this.httpOptions);
   }
 
   createPost(title: string, body: string, image: Blob | null = null) {
