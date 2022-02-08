@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostCommentResource;
 use App\Models\Post;
 use App\Models\PostComment;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class PostCommentController extends Controller
     {
         $this->authorize('viewAny', [PostComment::class, $post]);
 
-        return $post->comments()->get();
+        return PostCommentResource::collection($post->comments()->paginate());
     }
 
     /**
@@ -46,7 +47,7 @@ class PostCommentController extends Controller
         $comment->post_id = $post->id;
         $comment->user_id = $request->user()->id;
         $comment->save();
-        return $comment;
+        return new PostCommentResource($comment);
     }
 
     /**
@@ -59,7 +60,7 @@ class PostCommentController extends Controller
     {
         $this->authorize('view', [$comment, $post]);
 
-        return $comment;
+        return new PostCommentResource($comment);
     }
 
     /**
@@ -75,7 +76,7 @@ class PostCommentController extends Controller
 
         $comment->update($request->all());
 
-        return $comment;
+        return new PostCommentResource($comment);
     }
 
     /**

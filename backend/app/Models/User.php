@@ -42,6 +42,25 @@ class User extends Authenticatable // implements MustVerifyEmail
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['roles'];
+
+
+    /** Used to automatically add the "roles" field/attribute to serialized
+     * responses.
+     *
+     * For more info see:
+     * https://laravel.com/docs/8.x/eloquent-serialization#appending-values-to-json
+     */
+    public function getRolesAttribute()
+    {
+        return $this->roles()->get(['id']);
+    }
+
     /** Get the posts that this user has made. */
     public function posts()
     {
@@ -54,13 +73,24 @@ class User extends Authenticatable // implements MustVerifyEmail
     }
 
     /** Get the roles that this user has. */
-    public function roles() {
+    public function roles()
+    {
         return $this->belongsToMany(Role::class, 'user_roles');
     }
 
+    public function hasRole($roleId)
+    {
+        // This was inspired by code from:
+        // https://stackoverflow.com/questions/24555697/check-if-belongstomany-relation-exists-laravel
+        return $this->roles()->where('id', $roleId)->exists();
+    }
+    public function hasNamedRole($roleName)
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
     /** Check if this user has the administrator role. */
     public function isAdministrator()
     {
-        return $this->roles()->where('name', 'Administrator')->exists();
+        return $this->hasNamedRole('Administrator');
     }
 }

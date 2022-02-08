@@ -30,17 +30,24 @@ class RolePolicy
         // If this returns null then the normal method is used.
     }
 
-    /** Show all users roles. */
+    /** Determine whether the user can see all users with a specific role.
+     *
+     * For showing the roles of a single user, please see
+     * `UserPolicy::viewRoles`.
+     */
     public function showUserRoles(User $user, Role $role)
     {
-        // Only admins
-        return false;
+        if ($user->hasRole($role->id)) {
+            // Can see others that have the same role as yourself:
+            return Response::allow();
+        }
+        return Response::deny("You can't see all users that have this role.");
     }
     /** Add a new role to a user. */
     public function addUserRole(User $user, Role $role, User $affectedUser)
     {
         // Only admins
-        return false;
+        return Response::deny("You can't add roles to users.");
     }
     /** Remove a role from a user. */
     public function removeUserRole(User $user, Role $role, User $affectedUser)
@@ -56,9 +63,10 @@ class RolePolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(?User $user)
     {
-        //
+        // Anyone, even guests, can see what roles this server has.
+        return true;
     }
 
     /**
@@ -68,9 +76,10 @@ class RolePolicy
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Role $role)
+    public function view(?User $user, Role $role)
     {
-        //
+        // Anyone, even guests, can see info about a specific role.
+        return true;
     }
 
     /**
@@ -81,7 +90,8 @@ class RolePolicy
      */
     public function create(User $user)
     {
-        //
+        // Only admins can create new roles
+        return Response::deny("You can't create new roles.");
     }
 
     /**
@@ -93,7 +103,8 @@ class RolePolicy
      */
     public function update(User $user, Role $role)
     {
-        //
+        // Only admins can change roles
+        return Response::deny("You can't change existing roles.");
     }
 
     /**
@@ -105,7 +116,8 @@ class RolePolicy
      */
     public function delete(User $user, Role $role)
     {
-        //
+        // Only admins can delete roles
+        return Response::deny("You can't remove existing roles.");
     }
 
     /**

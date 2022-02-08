@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -29,7 +30,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::orderBy('created_at', 'desc')->get();
+        return PostResource::collection(Post::orderBy('created_at', 'desc')->paginate());
     }
 
     /**
@@ -54,7 +55,7 @@ class PostController extends Controller
             // $post->image = $request->image->storeAs('images', $imageName);
         }
         $post->save();
-        return $post;
+        return new PostResource($post);
     }
 
     /**
@@ -65,7 +66,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return $post;
+        return new PostResource($post);
     }
     public function showImage(Post $post)
     {
@@ -85,7 +86,7 @@ class PostController extends Controller
     {
         $post->update($request->all());
 
-        return $post;
+        return new PostResource($post);
     }
 
     /**

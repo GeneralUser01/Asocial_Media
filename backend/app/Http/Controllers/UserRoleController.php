@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class UserRoleController extends Controller
         $this->authorize('showUserRoles', $role);
 
         // Show users that have this role:
-        return $role->users()->get();
+        return UserResource::collection($role->users()->paginate());
     }
 
     /**
@@ -82,5 +83,7 @@ class UserRoleController extends Controller
         //
         // See: https://www.amitmerchant.com/attach-detach-sync-laravel/
         $user->roles()->detach($role->id);
+
+        return 204;
     }
 }

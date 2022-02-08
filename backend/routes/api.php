@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\PostCommentController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserRoleController;
+use App\Http\Resources\UserResource;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -55,14 +59,15 @@ use Illuminate\Support\Facades\Route;
 //       "/posts/{post}/comments/{comment}" can't both be flattened.
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $data = $request->user();
-    $data['roles'] = $data->roles()->get();
-    return $data;
+    return new UserResource($request->user());
 });
+Route::apiResource('users', UserController::class)->only(['index', 'show']);
+
+Route::apiResource('roles', RoleController::class);
+// Add/Remove users to/from a role:
+Route::apiResource('roles.users', UserRoleController::class)->only(['index', 'store', 'destroy'])->scoped();
+
 
 Route::apiResource('posts', PostController::class);
 Route::apiResource('posts.comments', PostCommentController::class)->scoped();
 Route::get('posts/{post}/image', [PostController::class, 'showImage']);
-
-// Add/Remove users to/from a role:
-Route::apiResource('roles.users', UserRoleController::class)->only(['index', 'store', 'destroy'])->scoped();

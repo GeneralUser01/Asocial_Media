@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Models\Post;
 use App\Models\PostComment;
 use App\Models\Role;
+use App\Models\User;
 use App\Policies\PostCommentPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\RolePolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -28,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         Post::class => PostPolicy::class,
         PostComment::class => PostCommentPolicy::class,
         Role::class => RolePolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**
