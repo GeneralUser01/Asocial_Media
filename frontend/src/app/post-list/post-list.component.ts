@@ -1,4 +1,4 @@
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit, ViewEncapsulation } from '@angular/core';
 import { Post, PostService } from '../_services/post.service';
 
 // /**
@@ -13,7 +13,8 @@ import { Post, PostService } from '../_services/post.service';
 @Component({
   selector: 'app-post-list',
   templateUrl: './post-list.component.html',
-  styleUrls: ['./post-list.component.css']
+  styleUrls: ['./post-list.component.css', '../app.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class PostListComponent implements OnInit {
   posts: Post[] = [];
