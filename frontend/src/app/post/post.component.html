@@ -1,18 +1,66 @@
 <ng-container *ngIf="!!post; else noPost">
+    <img [src]="image" onerror="this.style.display='none'">
     <h2>{{ post?.title }}</h2>
     <p>{{ post?.body }}</p>
-
-    <hr>
-    <h3>Comments:</h3>
-    <br>
-
-    <p *ngFor="let comment of comments" style="padding: 5px; margin: 10px; border: black solid 1px; border-radius: 5px;">{{comment.content}}</p>
 </ng-container>
 
 <ng-template #noPost>
-    <h2 *ngIf="!isLoading; else loadingPost">Sorry, but this post doesn't exist.</h2>
+    <h3 *ngIf="!isLoading; else loadingPost">Sorry, but this post doesn't exist.</h3>
 </ng-template>
 
 <ng-template #loadingPost>
-    <h2>Loading Post...</h2>
+    <h3>Loading Post...</h3>
 </ng-template>
+
+
+<hr>
+<h4>Comment Section</h4>
+<section>
+    <ng-container *ngFor="let postComment of postComments">
+        <p>{{ postComment?.content }}</p>
+    </ng-container>
+
+    <!-- <ng-template #noComments>
+        <h6 *ngIf="!isLoading; else loadingComments">No comments.</h6>
+    </ng-template>
+
+    <ng-template #loadingComments>
+        <h5>Loading Comments...</h5>
+    </ng-template> -->
+</section>
+
+<form
+name="form"
+(ngSubmit)="f.form.valid && onSubmit()"
+#f="ngForm"
+novalidate
+>
+    <textarea
+    id="post-comment"
+    type="text"
+    class="form-control"
+    name="content"
+    [(ngModel)]="form.content"
+    required
+    maxlength="20000"
+    #content="ngModel"
+    (input)="serverErrors.content = null"></textarea>
+    <div class="alert-danger" *ngIf="(content.errors && f.submitted) || serverErrors.content">
+        <div *ngIf="content?.errors?.['required'] && isSubmitCommentFailed">Content is required</div>
+        <div *ngIf="content?.errors?.['maxlength']">
+            comment must be at most 20 000 characters
+        </div>
+        <ng-container *ngIf="serverErrors.content">
+        <div *ngFor="let error of serverErrors.content;">{{ error }}</div>
+        </ng-container>
+    </div>
+
+    <div class="alert alert-warning" *ngIf="f.submitted && isSubmitCommentFailed">
+        Comment upload failed!<br />{{ errorMessage }}
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccessful">
+        Your post comment upload is successful!
+    </div>
+
+    <button style="margin-top: 2vh;" id="btn-submit-post">Submit comment</button>
+</form>
