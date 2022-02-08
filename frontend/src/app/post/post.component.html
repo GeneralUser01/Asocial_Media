@@ -1,7 +1,5 @@
 <ng-container *ngIf="!!post; else noPost">
-    <div style="width: 100%;">
-        <img [src]="image" onerror="this.style.display='none'">
-    </div>
+    <img [src]="image" onerror="this.style.display='none'">
     <h2>{{ post?.title }}</h2>
     <p>{{ post?.body }}</p>
 </ng-container>
@@ -44,13 +42,13 @@ novalidate
     name="content"
     [(ngModel)]="form.content"
     required
-    maxlength="20000"
+    maxlength="512"
     #content="ngModel"
     (input)="serverErrors.content = null"></textarea>
     <div class="alert-danger" *ngIf="(content.errors && f.submitted) || serverErrors.content">
         <div *ngIf="content?.errors?.['required'] && isSubmitCommentFailed">Content is required</div>
         <div *ngIf="content?.errors?.['maxlength']">
-            comment must be at most 20 000 characters
+            comment must be at most 512 characters
         </div>
         <ng-container *ngIf="serverErrors.content">
         <div *ngFor="let error of serverErrors.content;">{{ error }}</div>
