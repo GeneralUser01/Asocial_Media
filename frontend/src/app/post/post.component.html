@@ -1,5 +1,7 @@
 <ng-container *ngIf="!!post; else noPost">
-    <img [src]="image" onerror="this.style.display='none'">
+    <div style="width: 100%;">
+        <img [src]="image" onerror="this.style.display='none'">
+    </div>
     <h2>{{ post?.title }}</h2>
     <p>{{ post?.body }}</p>
 </ng-container>
