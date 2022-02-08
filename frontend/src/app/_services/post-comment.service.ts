@@ -34,8 +34,8 @@ export class PostCommentService {
     return this.http.get<PostComment[]>(this.getUrl(postId), this.httpOptions);
   }
 
-  createComment(post: PostCommentContent & PostCommentParentId) {
-    return this.http.post(this.getUrl(post.post_id), post, this.httpOptions);
+  createComment(postId: number | string, content: string) {
+    return this.http.post(this.getUrl(postId), { content }, this.httpOptions);
   }
   updateComment(post: PostCommentContent & PostCommentParentId & WithId) {
     return this.http.put(this.getUrl(post.post_id) + post.id, post, this.httpOptions);
