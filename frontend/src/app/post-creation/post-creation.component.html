@@ -27,15 +27,11 @@ novalidate
   name="title"
   [(ngModel)]="form.title"
   required
-  minlength="1"
   maxlength="200"
   #title="ngModel"
   (input)="serverErrors.title = null">
   <div class="alert-danger" *ngIf="(title.errors && f.submitted) || serverErrors.title">
     <div *ngIf="title?.errors?.['required']">title is required</div>
-    <div *ngIf="title?.errors?.['minlength']">
-      title must be at least 1 character
-    </div>
     <div *ngIf="title?.errors?.['maxlength']">
       title must be at most 200 characters
     </div>
@@ -54,10 +50,18 @@ novalidate
   name="body"
   [(ngModel)]="form.body"
   required
-  minlength="1"
   maxlength="20000"
   #body="ngModel"
   (input)="serverErrors.body = null"></textarea>
+  <div class="alert-danger" *ngIf="(body.errors && f.submitted) || serverErrors.body">
+    <div *ngIf="body?.errors?.['required']">Content is required</div>
+    <div *ngIf="body?.errors?.['maxlength']">
+      Content must be at most 20 000 characters
+    </div>
+    <ng-container *ngIf="serverErrors.body">
+      <div *ngFor="let error of serverErrors.body;">{{ error }}</div>
+    </ng-container>
+  </div>
 
   <button style="margin-top: 2vh;" id="btn-submit-post">Submit post</button>
   <div class="alert alert-warning" *ngIf="f.submitted && isSubmitPostFailed">
