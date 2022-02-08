@@ -16,7 +16,6 @@ export type Post = PostContent & WithId & Timestamps;
 export class PostService {
   postUrl = '../api/posts/';
   httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
   constructor(private http: HttpClient) { }
