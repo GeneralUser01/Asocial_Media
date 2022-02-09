@@ -1,3 +1,8 @@
+body {
+    font-family: sans-serif, Helvetica, Arial;
+    background-color: rgb(247, 247, 247);
+}
+
 button {
     display: inline-block;
     position: relative;
@@ -42,13 +47,13 @@ button:before {
     transition: opacity 0.3s ease-out;
 }
 
-button:hover:before {
+button:hover:before, button:focus::before {
     opacity: 1;
 }
-button:hover:after {
+button:hover:after, button:focus:after {
     opacity: 0;
 }
-button:hover {
+button:hover, button:focus {
     color: rgb(255, 255, 255);
     background-image: unset;
     transition: opacity 0.3s ease-out;
