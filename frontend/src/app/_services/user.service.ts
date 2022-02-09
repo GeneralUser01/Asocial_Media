@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { CreatedAtTimestamp, Timestamps, UpdatedAtTimestamp, WithId, Wrapped, WrappedCollection } from '../_shared/db-types';
-import { map } from 'rxjs';
+import { catchError, map, of, throwError } from 'rxjs';
 
 export interface CurrentUserContent {
   name: string,
@@ -34,9 +34,21 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
+  /** Gets the current user if we are logged in or `null` if we aren't logged
+   * in. */
   getCurrentUser() {
     return this.http.get<Wrapped<CurrentUser>>(this.currentUserUrl, this.httpOptions)
-      .pipe(map(result => result.data));
+      .pipe(
+        map(result => result.data),
+        catchError((err: HttpErrorResponse) => {
+          // Handle 401 unauthorized error (not logged in) since we expect that to
+          // happen for normal usage. For more info see:
+          // https://angular.io/guide/http#handling-request-errors
+          if (err.status === 401) return of(null);
+          // Don't catch other errors:
+          else return throwError(() => err);
+        })
+      );
   }
 
   getUser(userId: number | string) {
