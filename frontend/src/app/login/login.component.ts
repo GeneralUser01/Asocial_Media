@@ -5,8 +5,7 @@ import { UserService } from '../_services/user.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css', '../app.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
   form: any = {

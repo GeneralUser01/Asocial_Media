@@ -1,6 +1,6 @@
-.row {
-    display: flex;
-    flex-direction: row;
+body {
+    font-family: sans-serif, Helvetica, Arial;
+    background-color: rgb(247, 247, 247);
 }
 
 .margin-top {

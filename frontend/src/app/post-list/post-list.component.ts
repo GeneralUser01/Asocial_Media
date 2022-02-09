@@ -13,8 +13,7 @@ import { Post, PostService } from '../_services/post.service';
 @Component({
   selector: 'app-post-list',
   templateUrl: './post-list.component.html',
-  styleUrls: ['./post-list.component.css', '../app.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./post-list.component.css']
 })
 export class PostListComponent implements OnInit {
   posts: Post[] = [];

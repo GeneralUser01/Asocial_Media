@@ -4,8 +4,7 @@ import { PostService } from '../_services/post.service';
 @Component({
   selector: 'app-post-creation',
   templateUrl: './post-creation.component.html',
-  styleUrls: ['./post-creation.component.css', '../app.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./post-creation.component.css']
 })
 
 export class PostCreationComponent implements OnInit {

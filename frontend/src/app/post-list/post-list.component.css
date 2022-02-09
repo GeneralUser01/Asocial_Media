@@ -1,3 +1,8 @@
+body {
+    font-family: sans-serif, Helvetica, Arial;
+    background-color: rgb(247, 247, 247);
+}
+
 /* #thread-list {
     height: 38em;
     overflow: auto;

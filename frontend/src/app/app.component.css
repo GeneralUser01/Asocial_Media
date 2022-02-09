@@ -1,4 +1,7 @@
+/* Not used due to encapsulation which cannot exclusively add this foreign CSS file
+but instead allows all loaded stylesheets to remain regardless of which component is currently browsed
+
 body {
     font-family: sans-serif, Helvetica, Arial;
     background-color: rgb(247, 247, 247);
-}
+} */
