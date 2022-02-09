@@ -93,4 +93,8 @@ class User extends Authenticatable // implements MustVerifyEmail
     {
         return $this->hasNamedRole('Administrator');
     }
+
+    public function scrambleText($text, ?User $userThatWillBeShownText) {
+        return $text;
+    }
 }
