@@ -42,6 +42,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        // Custom authorization checks not bound to a specific Eloquent database
+        // model, for more info see:
+        // https://laravel.com/docs/8.x/authorization#writing-gates
+        Gate::define('UserPolicy-viewRole', [UserPolicy::class, 'viewRole']);
+
         // A link with a URL of this type will be emailed to a user when they
         // request a password reset. Our frontend will then show them a form
         // where they can specify a new password.

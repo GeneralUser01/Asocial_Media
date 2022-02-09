@@ -35,9 +35,9 @@ class RolePolicy
      * For showing the roles of a single user, please see
      * `UserPolicy::viewRoles`.
      */
-    public function showUserRoles(User $user, Role $role)
+    public function showUserRoles(?User $user, Role $role)
     {
-        if ($user->hasRole($role->id)) {
+        if ($user && $user->hasRole($role->id)) {
             // Can see others that have the same role as yourself:
             return Response::allow();
         }

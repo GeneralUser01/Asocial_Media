@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Gate;
 
 class UserResource extends JsonResource
 {
@@ -29,7 +30,8 @@ class UserResource extends JsonResource
             // For more info about filtering a collection see:
             // https://stackoverflow.com/questions/21974402/filtering-eloquent-collection-data-with-collection-filter
             'roles' => $this->roles()->get()->filter(function ($role) use ($request) {
-                if ($request->user() === null) return false;
+                // Some roles might be visible to guests as well:
+                if ($request->user() === null) return Gate::allows('UserPolicy-viewRole', [$this->resource, $role]);
                 // Only show roles that we are authorized to view:
                 return $request->user()->can('viewRole', [$this->resource, $role]);
             })->values(),
