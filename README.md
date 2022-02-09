@@ -56,7 +56,8 @@ After you have installed `Composer` and a `MySQL` database you should do the fol
 - Now you can use `php artisan serve` to start the server.
 - If the server doesn't use the URL `http://127.0.0.1:8000` then you might need to [configure `Sanctum`](https://laravel.com/docs/8.x/sanctum#spa-configuration) to allow logins for the port you are actually using.
   - The URLs that are allowed for logins is specified in `backend/config/sanctum.php` using the `stateful` key.
-  - The easiest way to allow a URL is to change the `APP_URL` environment variable in your `.env` file to include your port number. (So something like `APP_URL=http://localhost:8001`.)
+  - The easiest way to allow a URL is to change the `APP_URL` environment variable in your `.env` file to include your port number. (So something like `APP_URL=http://127.0.0.1:8001`.)
+  - Make sure you connect using the exact URL specified so use `http://127.0.0.1:8000` and not `http://localhost:8000` since Laravel will treat this addresses differently.
 - Remember that you need to build the frontend to actually see the UI when you go to the server URL.
 
 ## Frontend
