@@ -33,6 +33,8 @@ class CreateThreadsTable extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             // $table->binary('image')->nullable();
             $table->string('image_mime_type')->nullable();
+            $table->integer('likes')->nullable();
+            $table->integer('dislikes')->nullable();
             $table->timestamps();
         });
         DB::statement("ALTER TABLE posts ADD image MEDIUMBLOB");
@@ -42,6 +44,8 @@ class CreateThreadsTable extends Migration
             $table->text('content');
             $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->integer('likes')->nullable();
+            $table->integer('dislikes')->nullable();
             $table->timestamps();
         });
     }

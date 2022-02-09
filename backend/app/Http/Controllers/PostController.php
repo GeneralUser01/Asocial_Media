@@ -42,6 +42,10 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $post = new Post($request->only('title', 'body'));
+
+        Str::limit($post->title, 100);
+        Str::limit($post->body, 512);
+
         $post->user_id = $request->user()->id;
         if (isset($request->image)) {
             $file = $request->file('image');
@@ -49,10 +53,6 @@ class PostController extends Controller
             $contents = $file->openFile()->fread($file->getSize());
             $post->image = $contents;
             $post->image_mime_type = $file->getClientMimeType();
-
-            // Alternative for storing images to filesystem instead of database
-            // $imageName = time().'.'.$request->image->extension();
-            // $post->image = $request->image->storeAs('images', $imageName);
         }
         $post->save();
         return new PostResource($post);
