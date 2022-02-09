@@ -43,6 +43,22 @@ If you have the [Chocolatey](https://chocolatey.org/) package manager installed 
 
 After you have PHP and Composer installed you can run `composer install` in the `backend` folder to install all the needed dependencies. Note that if you get an error like `the requested PHP extension fileinfo is missing from your system` when trying to run that command then you might need to manually edit the `C:\tools\php81\php.ini` file to add the line `extension=php_fileinfo` into it.
 
+##### Configuring the server
+
+After you have installed `Composer` and a `MySQL` database you should do the following in order to start the server:
+
+- Configure your environment, probably by copying the `.env.example` to a file named `.env`.
+  - Check that the database variables are correct for your database. You might also need to create a database with the name specified by the `DB_DATABASE` variable.
+- Run `composer install` to ensure all dependencies are installed correctly.
+- Run `php artisan migrate` to ensure that the database is configured correctly.
+  - Alternatively use `php artisan migrate:fresh --seed` to also add example data to database.
+- Run `php artisan key:generate` to set the `APP_KEY` environment variable in the `.env` file to a new key.
+- Now you can use `php artisan serve` to start the server.
+- If the server doesn't use the URL `http://127.0.0.1:8000` then you might need to [configure `Sanctum`](https://laravel.com/docs/8.x/sanctum#spa-configuration) to allow logins for the port you are actually using.
+  - The URLs that are allowed for logins is specified in `backend/config/sanctum.php` using the `stateful` key.
+  - The easiest way to allow a URL is to change the `APP_URL` environment variable in your `.env` file to include your port number. (So something like `APP_URL=http://localhost:8001`.)
+- Remember that you need to build the frontend to actually see the UI when you go to the server URL.
+
 ## Frontend
 
 The frontend is written in Angular and is a SPA (Single Page Application).
