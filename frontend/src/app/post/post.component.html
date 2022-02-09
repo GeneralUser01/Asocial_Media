@@ -1,5 +1,6 @@
 <ng-container *ngIf="!!post; else noPost">
     <img [src]="image" onerror="this.style.display='none'">
+    <form name="deletion-controls" (ngSubmit)="onDelete()"><button>Delete post</button></form>
     <h2>{{ post?.title }}</h2>
     <p>{{ post?.body }}</p>
 </ng-container>
@@ -18,6 +19,15 @@
 <section>
     <ng-container *ngFor="let postComment of postComments">
         <p>{{ postComment?.content }}</p>
+        <!-- <form name="feedback-controls" (ngSubmit)="onLike()"></form> -->
+        <div class="plain-row flex-content-to-the-right">
+            <div class="likes">
+                <button>Like</button>
+            </div>
+            <div class="dislikes">
+                <button>Dislike</button>
+            </div>
+        </div>
     </ng-container>
 
     <!-- <ng-template #noComments>
@@ -44,21 +54,21 @@ novalidate
     required
     maxlength="512"
     #content="ngModel"
-    (input)="serverErrors.content = null"></textarea>
-    <div class="alert-danger" *ngIf="(content.errors && f.submitted) || serverErrors.content">
+    (input)="postCommentServerErrors.content = null"></textarea>
+    <div class="alert-danger" *ngIf="(content.errors && f.submitted) || postCommentServerErrors.content">
         <div *ngIf="content?.errors?.['required'] && isSubmitCommentFailed">Content is required</div>
         <div *ngIf="content?.errors?.['maxlength']">
-            comment must be at most 512 characters
+            Comment must be at most 512 characters
         </div>
-        <ng-container *ngIf="serverErrors.content">
-        <div *ngFor="let error of serverErrors.content;">{{ error }}</div>
+        <ng-container *ngIf="postCommentServerErrors.content">
+        <div *ngFor="let error of postCommentServerErrors.content;">{{ error }}</div>
         </ng-container>
     </div>
 
     <div class="alert alert-warning" *ngIf="f.submitted && isSubmitCommentFailed">
-        Comment upload failed!<br />{{ errorMessage }}
+        Comment upload failed!<br />{{ postCommentErrorMessage }}
     </div>
-    <div class="alert alert-success" *ngIf="isSuccessful">
+    <div class="alert alert-success" *ngIf="postCommentUploadIsSuccessful">
         Your post comment upload is successful!
     </div>
 

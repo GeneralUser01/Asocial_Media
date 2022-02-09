@@ -1,9 +1,17 @@
+body {
+    font-family: sans-serif, Helvetica, Arial;
+    background-color: rgb(247, 247, 247);
+}
+
 p {
     white-space: pre-wrap;
     border-style: solid;
     border-width: thin;
     padding: 1vw;
     background-color: rgb(255, 255, 255);
+}
+section p {
+    margin-bottom: 0;
 }
 
 h2, h4 {
@@ -17,16 +25,23 @@ img {
     width: 100%;
 }
 
+.plain-row {
+    display: flex;
+    flex-direction: row;
+}
+.flex-content-to-the-right {
+    justify-content: end;
+}
+
 section {
     min-height: 7vh;
 }
 
-form {
-    display: block;
-    margin-top: auto;
-}
 button {
     width: 100%;
+}
+section button {
+    margin-bottom: 1rem;
 }
 
 .btn-edit {

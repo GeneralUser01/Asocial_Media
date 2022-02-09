@@ -8,8 +8,7 @@ import { Post, PostService } from '../_services/post.service';
 @Component({
   selector: 'app-post',
   templateUrl: './post.component.html',
-  styleUrls: ['./post.component.css', '../app.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./post.component.css']
 })
 export class PostComponent implements OnInit {
   post: null | Post = null;
@@ -25,10 +24,14 @@ export class PostComponent implements OnInit {
   form: any = {
     content: null,
   };
-  isSuccessful = false;
+  postCommentUploadIsSuccessful = false;
   isSubmitCommentFailed = false;
-  errorMessage = '';
-  serverErrors = { content: null };
+  postCommentErrorMessage = '';
+  postCommentServerErrors = { content: null };
+
+  postDeletionIsSuccessful = false;
+  isPostDeletionFailed = false;
+  postDeletionErrorMessage = '';
 
   constructor(
     private postService: PostService,
@@ -70,10 +73,31 @@ export class PostComponent implements OnInit {
       .subscribe((comments) => this.postComments = comments?.data ?? []);
   }
 
+  onDelete(): void {
+    // Forget previous errors:
+    this.postDeletionErrorMessage = '';
+    this.isPostDeletionFailed = false;
+    if (this.postId === null) return;
+
+    this.postService.deletePost(this.postId).subscribe({
+      next: (data) => {
+        console.log('Post deleted successfully: ', data);
+        this.postDeletionIsSuccessful = true;
+        this.isPostDeletionFailed = false;
+      },
+      error: (err) => {
+        console.log('Post deletion failed: ', err);
+        this.postDeletionErrorMessage = err.error.message;
+
+        this.isPostDeletionFailed = true;
+      }
+    });
+  }
+
   onSubmit(): void {
     // Forget previous server errors:
-    this.serverErrors = { content: null };
-    this.errorMessage = '';
+    this.postCommentServerErrors = { content: null };
+    this.postCommentErrorMessage = '';
     this.isSubmitCommentFailed = false;
 
     const { content } = this.form;
@@ -83,7 +107,7 @@ export class PostComponent implements OnInit {
       this.commentService.createComment(this.postId, content).subscribe({
         next: (data) => {
           console.log('Post comment uploaded successfully: ', data);
-          this.isSuccessful = true;
+          this.postCommentUploadIsSuccessful = true;
           this.isSubmitCommentFailed = false;
 
           // Clear comment textarea:
@@ -93,10 +117,10 @@ export class PostComponent implements OnInit {
         },
         error: (err) => {
           console.log('Post comment upload failed: ', err);
-          this.errorMessage = err.error.message;
+          this.postCommentErrorMessage = err.error.message;
           const errors = err.error.errors;
           if (errors) {
-            this.serverErrors.content = errors.content || null;
+            this.postCommentServerErrors.content = errors.content || null;
           }
 
           this.isSubmitCommentFailed = true;
