@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable // implements MustVerifyEmail
 {
@@ -94,7 +95,84 @@ class User extends Authenticatable // implements MustVerifyEmail
         return $this->hasNamedRole('Administrator');
     }
 
-    public function scrambleText($text, ?User $userThatWillBeShownText) {
-        return $text;
+    public function scrambleText($enhancedText, ?User $userThatWillBeShownText)
+    {
+        if ($this->id === $userThatWillBeShownText?->id) {
+            return $enhancedText;
+        }
+
+        // TODO: store this inside the database.
+        $algorithm = rand(0, 5);
+        if ($algorithm === 0) {
+            // randomBetweenStartAndEndOfEachWord:
+            $lines = preg_split('/\r\n|\r|\n/', $enhancedText);
+            $lines = array_map(function($line) {
+                // Separate by words:
+                $words = explode(' ', $line);
+                $words = array_map(function($word) {
+                    if (strlen($word) < 2)
+                        return $word;
+                    else
+                        return $word[0] . str_shuffle(substr($word, 1, -1)) . $word[strlen($word) - 1];
+                }, $words);
+                $line = implode(' ', $words);
+                return $line;
+            }, $lines);
+            $enhancedText = implode("\n", $lines);
+            $enhancedText = preg_replace("/^-(.*)-$/", Str::random(), $enhancedText, -1);
+            return $enhancedText;
+        } else if ($algorithm === 1) {
+            // extraConsonantForDoubleConsonants:
+            $enhancedText = preg_replace('"är"', 'ä', $enhancedText);
+            $enhancedText = preg_replace('"Är"', 'Ä', $enhancedText);
+            $enhancedText = preg_replace('/e/i', 'ä', $enhancedText);
+            return $enhancedText;
+        } else if ($algorithm === 2) {
+            // The 'Uwuifier' Github repository: https://github.com/Schotsl/Uwuifier-node
+            // gives some credit to a web extension: https://addons.mozilla.org/sv-SE/firefox/addon/owofox/
+            // that inspired this code:
+            $faces = [" (・`ω´・) ", " ;;w;; ", " owo ", " UwU ", " >w< ", " ^w^ "];
+            $enhancedText = preg_replace('/(?:r|l)/', "w", $enhancedText);
+            $enhancedText = preg_replace('/(?:R|L)/', "W", $enhancedText);
+            $enhancedText = preg_replace('/n([aeiou])/', 'ny$1', $enhancedText);
+            $enhancedText = preg_replace('/N([aeiou])/', 'Ny$1', $enhancedText);
+            $enhancedText = preg_replace('/N([AEIOU])/', 'Ny$1', $enhancedText);
+            $enhancedText = preg_replace('/ove/', "uv", $enhancedText);
+            $enhancedText = preg_replace_callback('/\!+/', function ($matches) use ($faces) {
+                // We want this (but the value should not change between reloads):
+                $faceIndex = rand(0, 5);
+
+                //  This is kinda random, but it won't change between reloads.
+                // Improve this by using a real random generator and seed it
+                // with our kinda random value for better randomness.
+                //
+                // We rely on rand everywhere anyways, so don't care about this:
+                /*
+                $somewhatRandomSeed = $this->id + $textId + $matchCount;
+                $faceIndex = $somewhatRandomSeed % 6;
+                $matchCount += 1;
+                */
+
+                return $faces[$faceIndex];
+            }, $enhancedText);
+            return $enhancedText;
+        } else if ($algorithm === 3) {
+            // allCaps
+            $enhancedText = preg_replace_callback('/"[a-z]/', function ($matches) {
+                return strtoLower($matches[0]);
+            }, strtoUpper($enhancedText));
+            return $enhancedText;
+        } else if ($algorithm === 4) {
+            // sarcasmOverload
+            $enhancedText = preg_replace_callback('!([a-zA-Z]\d*)([a-zA-Z])!', function ($matches) {
+                return strtolower($matches[1]) . strtoupper($matches[2]);
+            }, $enhancedText);
+            return $enhancedText;
+        } else if($algorithm === 5) {
+            // oneLiner
+            return $enhancedText = str_replace([".", "!", "?", "\n", "\t", "\r"], ' ', substr(strtolower($enhancedText), 1));
+        } else {
+            throw new \Exception("Invalid text processing algorithm: $algorithm");
+        }
     }
 }
