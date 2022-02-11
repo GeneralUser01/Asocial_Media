@@ -30,6 +30,7 @@ class CreateThreadsTable extends Migration
             $table->id();
             $table->string('title');
             $table->text('body');
+            $table->text('scrambled_body');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             // $table->binary('image')->nullable();
             $table->string('image_mime_type')->nullable();
@@ -42,6 +43,7 @@ class CreateThreadsTable extends Migration
         Schema::create('post_comments', function (Blueprint $table) {
             $table->id();
             $table->text('content');
+            $table->text('scrambled_content');
             $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->integer('likes')->nullable();

@@ -47,6 +47,8 @@ class PostController extends Controller
         Str::limit($post->title, 100);
         Str::limit($post->body, 512);
 
+        $post->scrambled_body = $request->user()->scrambleText($post->body, null);
+
         $post->user_id = $request->user()->id;
         if (isset($request->image)) {
             $file = $request->file('image');

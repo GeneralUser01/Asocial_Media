@@ -44,6 +44,7 @@ class PostCommentController extends Controller
         $this->authorize('create', [PostComment::class, $post]);
 
         $comment = new PostComment($request->all());
+        $post->scrambled_content = $request->user()->scrambleText($post->content, null);
         $comment->post_id = $post->id;
         $comment->user_id = $request->user()->id;
         $comment->save();
