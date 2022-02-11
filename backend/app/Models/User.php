@@ -138,9 +138,9 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = preg_replace('/N([aeiou])/', 'Ny$1', $enhancedText);
             $enhancedText = preg_replace('/N([AEIOU])/', 'Ny$1', $enhancedText);
             $enhancedText = preg_replace('/ove/', "uv", $enhancedText);
-            $enhancedText = preg_replace_callback('/\!+/', function ($matches) use ($faces) {
+            $enhancedText = preg_replace_callback('/\!+/', function () use ($faces) {
                 // We want this (but the value should not change between reloads):
-                $faceIndex = rand(0, 5);
+                $faceIndex = rand(0, 6);
 
                 //  This is kinda random, but it won't change between reloads.
                 // Improve this by using a real random generator and seed it
@@ -170,7 +170,60 @@ class User extends Authenticatable // implements MustVerifyEmail
             return $enhancedText;
         } else if($algorithm === 5) {
             // oneLiner
-            return $enhancedText = str_replace([".", "!", "?", "\n", "\t", "\r"], ' ', substr(strtolower($enhancedText), 1));
+            return $enhancedText = str_replace([".", "!", "?", "\n", "\t", "\r"], '', substr(strtolower($enhancedText), 1));
+        } else if($algorithm === 6) {
+            // theElegantNetOfThePeople
+            // replace the following patterns with a random result for each occurrence
+            $youIsU = ['u', 'U'];
+            $exclaiming = [' lol', ' lmao', ' rofl', ' literally', ' XD'];
+            $oh = ['o', 'O'];
+            $r = ['', '/"[a-z]/'];
+            $f = ['', ' F ', '/"[a-z]/'];
+            $e = ['', ' E ', '/"[a-z]/'];
+            $enhancedText = preg_replace_callback('~/you/i~', function () use ($youIsU) {
+                $youIsUIndex = rand(0, 1);
+                return $youIsU[$youIsUIndex];
+            }, $enhancedText);
+            $enhancedText = preg_replace('/and/i', "&", $enhancedText);
+            $enhancedText = preg_replace('/one/i', '1', $enhancedText);
+            $enhancedText = preg_replace('/free/i', '3', $enhancedText);
+            $enhancedText = preg_replace(['/to/i', '/too/i'], '2', $enhancedText);
+            $enhancedText = preg_replace('/for/i', '4', $enhancedText);
+            $enhancedText = preg_replace('/ate/i', '8', $enhancedText);
+            $enhancedText = preg_replace('/a/i', 'u', $enhancedText);
+            $enhancedText = preg_replace('/that/i', 'dat', $enhancedText);
+            $enhancedText = preg_replace('/this/i', 'dis', $enhancedText);
+            $enhancedText = preg_replace('/the/i', 'theh', $enhancedText);
+            $enhancedText = preg_replace('/why/i', 'y', $enhancedText);
+            $enhancedText = preg_replace('/w/i', 'v', $enhancedText);
+            $enhancedText = preg_replace('/my/i', 'our', $enhancedText);
+            $enhancedText = preg_replace('/community/i', 'comrades', $enhancedText);
+            $enhancedText = preg_replace_callback('~!~', function () use ($exclaiming) {
+                $exclaimingIndex = rand(0, 4);
+                return $exclaiming[$exclaimingIndex];
+            }, $enhancedText);
+            $enhancedText = preg_replace_callback('~/oh/i~', function () use ($oh) {
+                $ohIndex = rand(0, 1);
+                return $oh[$ohIndex];
+            }, $enhancedText);
+            $enhancedText = preg_replace('/really/i', 'rly', $enhancedText);
+            $enhancedText = preg_replace_callback('~/r/i~', function () use ($r) {
+                $rIndex = rand(0, 1);
+                return $r[$rIndex];
+            }, $enhancedText);
+            $enhancedText = preg_replace_callback('~/f/i~', function () use ($f) {
+                $fIndex = rand(0, 2);
+                return $f[$fIndex];
+            }, $enhancedText);
+            $enhancedText = preg_replace_callback('~/e/i~', function () use ($e) {
+                $eIndex = rand(0, 2);
+                return $e[$eIndex];
+            }, $enhancedText);
+            return $enhancedText;
+        } else if($algorithm === 7) {
+            // whySayManyWordWhenFewWordDoTrick
+        } else if($algorithm === 8) {
+            // botchedKeyToKeyboardLayout
         } else {
             throw new \Exception("Invalid text processing algorithm: $algorithm");
         }
