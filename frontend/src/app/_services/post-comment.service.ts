@@ -30,7 +30,7 @@ export class PostCommentService {
 
   getComment(postId: number | string, commentId: number | string) {
     return this.http.get<Wrapped<PostComment>>(this.getUrl(postId) + commentId, this.httpOptions)
-        .pipe(map(result => result.data));
+      .pipe(map(result => result.data));
   }
   getComments(postId: number | string, page = 1) {
     return this.http.get<WrappedCollection<PostComment[]>>(this.getUrl(postId) + '?page=' + page, this.httpOptions);
@@ -44,5 +44,18 @@ export class PostCommentService {
   }
   deleteComment(postId: number | string, commentId: number | string) {
     return this.http.delete(this.getUrl(postId) + commentId, this.httpOptions);
+  }
+
+  /** Like a comment. */
+  likeComment(postId: number | string, commentId: number | string) {
+    return this.http.post(this.getUrl(postId) + commentId + '/like', {}, this.httpOptions);
+  }
+  /** Dislike a comment. */
+  dislikeComment(postId: number | string, commentId: number | string) {
+    return this.http.post(this.getUrl(postId) + commentId + '/dislike', {}, this.httpOptions);
+  }
+  /** Remove any like or dislike that the user has made for the specified comment. */
+  unlikeComment(postId: number | string, commentId: number | string) {
+    return this.http.delete(this.getUrl(postId) + commentId + '/unlike', this.httpOptions);
   }
 }

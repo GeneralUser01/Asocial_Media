@@ -47,4 +47,17 @@ export class PostService {
   deletePost(postId: number | string) {
     return this.http.delete(this.postUrl + postId, this.httpOptions);
   }
+
+  /** Like a post. */
+  likePost(postId: number | string) {
+    return this.http.post(this.postUrl + postId + '/like', {}, this.httpOptions);
+  }
+  /** Dislike a post. */
+  dislikePost(postId: number | string) {
+    return this.http.post(this.postUrl + postId + '/dislike', {}, this.httpOptions);
+  }
+  /** Remove any like or dislike that the user has made for the specified post. */
+  unlikePost(postId: number | string) {
+    return this.http.delete(this.postUrl + postId + '/unlike', this.httpOptions);
+  }
 }
