@@ -19,6 +19,10 @@ class PostCommentFactory extends Factory
             'content' => $this->faker->paragraph,
             'post_id' => Post::factory(),
             'user_id' => User::factory(),
+            'scrambled_content' => function (array $attributes) {
+                $user = User::find($attributes['user_id']);
+                return $user->scrambleText($attributes['content']);
+            },
         ];
     }
 }

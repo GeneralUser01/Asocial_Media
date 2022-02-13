@@ -18,6 +18,10 @@ class PostFactory extends Factory
             'title' => $this->faker->sentence,
             'body' => implode("\n", $this->faker->paragraphs(10, false)),
             'user_id' => User::factory(),
+            'scrambled_body' =>  function (array $attributes) {
+                $user = User::find($attributes['user_id']);
+                return $user->scrambleText($attributes['body']);
+            },
         ];
     }
 }
