@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
 
 class UserPolicy
 {
@@ -41,8 +42,21 @@ class UserPolicy
             // Can see your own email:
             return Response::allow();
         }
+
         // Could have setting for each user if they want to make the email public.
         return Response::deny("You can't view the email of this user.");
+    }
+
+    /** Determine whether the user can view the content scrambling information
+     * of a specific user.
+     *
+     * This will be checked even if `viewAllInfo` is allowed since this info can
+     * be hidden even from the users themselves.
+     */
+    public function viewContentScramblerInfo(User $user, User $model)
+    {
+        // Only admins can see that we are messing with the users' content.
+        return Response::deny("You can't view any information about how content is processed.");
     }
 
     /** Determine whether the user can view a specific role for a specific user.
@@ -56,7 +70,7 @@ class UserPolicy
             // Can see your own roles:
             return Response::allow();
         }
-        if ($user && $user->can('showUserRoles', $role)) {
+        if (Gate::forUser($user)->allows('showUserRoles', $role)) {
             // If `RolePolicy::showsUserRoles` is allowed then the user can
             // already determine all users with this role, so allow it here as
             // well:
@@ -134,7 +148,12 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
-        // Not in use.
+        // Note: admins can delete all accounts.
+
+        // Users are allowed to delete their own accounts:
+        return $user->id === $model->id
+            ? Response::allow()
+            : Response::deny('You can not delete other users.');
     }
 
     /**

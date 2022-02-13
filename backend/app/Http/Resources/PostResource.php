@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Gate;
 
 class PostResource extends JsonResource
 {
@@ -26,7 +27,21 @@ class PostResource extends JsonResource
         $data = parent::toArray($request);
 
         // Use the post's author to scramble the post's content (optionally customizing based on viewer):
-        $data['body'] = $this->user()->first()->scrambleText($data['body'], $request->user());
+        // $data['body'] = $this->user()->first()->scrambleText($data['body'], $request->user());
+
+        if ($this->id !== $request->user()?->id) {
+            $data['body'] = $this->scrambled_body;
+        }
+
+        // Add likes and dislikes:
+        $entry = $this->entry()->first();
+        if (Gate::forUser($request->user())->allows('viewLikes', $this->resource)) {
+            $data['likes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', true)->count();
+        }
+        if (Gate::forUser($request->user())->allows('viewDislikes', $this->resource)) {
+            $data['dislikes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', false)->count();
+        }
+
         return $data;
     }
 }

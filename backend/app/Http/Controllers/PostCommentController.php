@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PostCommentResource;
+use App\Models\Entry;
 use App\Models\Post;
 use App\Models\PostComment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PostCommentController extends Controller
 {
@@ -43,12 +45,19 @@ class PostCommentController extends Controller
     {
         $this->authorize('create', [PostComment::class, $post]);
 
-        $comment = new PostComment($request->all());
-        $post->scrambled_content = $request->user()->scrambleText($post->content, null);
-        $comment->post_id = $post->id;
-        $comment->user_id = $request->user()->id;
-        $comment->save();
-        return new PostCommentResource($comment);
+        return DB::transaction(function () use ($request, $post) {
+            $user = $request->user();
+
+            $comment = new PostComment($request->all());
+            $post->scrambled_content = $request->user()->scrambleText($post->content, null);
+            $comment->post_id = $post->id;
+            $comment->user_id = $request->user()->id;
+            $comment->save();
+
+            Entry::createForUser($user, $comment);
+
+            return new PostCommentResource($comment);
+        });
     }
 
     /**
@@ -62,6 +71,26 @@ class PostCommentController extends Controller
         $this->authorize('view', [$comment, $post]);
 
         return new PostCommentResource($comment);
+    }
+
+    public function like(Request $request, Post $post, PostComment $comment)
+    {
+        $this->authorize('like', [$comment, $post]);
+
+        $request->user()->like($comment);
+    }
+    public function dislike(Request $request, Post $post, PostComment $comment)
+    {
+        $this->authorize('dislike', [$comment, $post]);
+
+        $request->user()->dislike($comment);
+    }
+    public function unlike(Request $request, Post $post, PostComment $comment)
+    {
+        $request->user()?->removeLike($comment, function ($like) use ($post, $comment) {
+            $this->authorize('unlike', [$comment, $post, $like]);
+            return true;
+        });
     }
 
     /**

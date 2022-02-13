@@ -17,26 +17,37 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        if ($request->user()?->can('viewAllInfo')) {
+        $data = null;
+        if (Gate::forUser($request->user())->allows('viewAllInfo', $this->resource)) {
             // Same info a user would see about themselves:
-            return parent::toArray($request);
+
+            // Make all roles with their names visible in the response:
+            $request->user()->load('roles');
+
+            $data = parent::toArray($request);
+        } else {
+            // Show only some info to other users:
+            $data = [
+                'id' => $this->id,
+                'name' => $this->name,
+                'email' => $this->when(Gate::forUser($request->user())->allows('viewEmail', $this->resource), $this->email),
+
+                // For more info about filtering a collection see:
+                // https://stackoverflow.com/questions/21974402/filtering-eloquent-collection-data-with-collection-filter
+                'roles' => $this->roles()->get()->filter(function ($role) use ($request) {
+                    return Gate::forUser($request->user())->allows('viewRole', [$this->resource, $role]);
+                })->values(),
+
+                // TODO: maybe round this to nearest day to minimize privacy issues:
+                'created_at' => $this->created_at,
+            ];
         }
-        // Show only some info to other users:
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->when($request->user()?->can('viewEmail', $this->resource), $this->email),
 
-            // For more info about filtering a collection see:
-            // https://stackoverflow.com/questions/21974402/filtering-eloquent-collection-data-with-collection-filter
-            'roles' => $this->roles()->get()->filter(function ($role) use ($request) {
-                // Some roles might be visible to guests as well:
-                if ($request->user() === null) return Gate::allows('UserPolicy-viewRole', [$this->resource, $role]);
-                // Only show roles that we are authorized to view:
-                return $request->user()->can('viewRole', [$this->resource, $role]);
-            })->values(),
+        if (Gate::forUser($request->user())->allows('viewContentScramblerInfo', $this->resource)) {
+            // Expose content scrambling information:
+            $data['content_scrambler_algorithm'] = $this->content_scrambler_algorithm;
+        }
 
-            'created_at' => $this->created_at,
-        ];
+        return $data;
     }
 }

@@ -61,7 +61,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return new UserResource($request->user());
 });
-Route::apiResource('users', UserController::class)->only(['index', 'show']);
+Route::apiResource('users', UserController::class)->only(['index', 'show', 'destroy']);
 
 Route::apiResource('roles', RoleController::class);
 // Add/Remove users to/from a role:
@@ -71,3 +71,13 @@ Route::apiResource('roles.users', UserRoleController::class)->only(['index', 'st
 Route::apiResource('posts', PostController::class);
 Route::apiResource('posts.comments', PostCommentController::class)->scoped();
 Route::get('posts/{post}/image', [PostController::class, 'showImage']);
+
+// Like and dislike posts:
+Route::post('posts/{post}/like', [PostController::class, 'like']);
+Route::post('posts/{post}/dislike', [PostController::class, 'dislike']);
+Route::delete('posts/{post}/unlike', [PostController::class, 'unlike']);
+
+// Like and dislike comments:
+Route::post('posts/{post}/comments/{comment}/like', [PostCommentController::class, 'like']);
+Route::post('posts/{post}/comments/{comment}/dislike', [PostCommentController::class, 'dislike']);
+Route::delete('posts/{post}/comments/{comment}/unlike', [PostCommentController::class, 'unlike']);

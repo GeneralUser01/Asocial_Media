@@ -16,6 +16,31 @@ class PostComment extends Model
      */
     protected $fillable = ['content'];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'entry',
+        'entry_id',
+    ];
+
+    /**
+     * All of the relationships to be touched. (Sync "updated_at" timestamp)
+     *
+     * @var array
+     */
+    protected $touches = ['entry'];
+
+    /**
+     * Get the "entry" that owns this model.
+     */
+    public function entry()
+    {
+        return $this->hasOne(Entry::class);
+    }
+
     /** Get the post for which this comment was made. */
     public function post()
     {

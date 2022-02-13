@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Models\Like;
+use App\Models\Post;
 use App\Models\PostComment;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -31,12 +33,87 @@ class PostCommentPolicy
     }
 
     /**
+     * Determine whether the user can see likes for the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\PostComment  $comment
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function viewLikes(?User $user, PostComment $comment)
+    {
+        // Anyone cam see likes:
+        return true;
+    }
+
+    /**
+     * Determine whether the user can see dislikes for the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\PostComment  $comment
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function viewDislikes(?User $user, PostComment $comment)
+    {
+        // Anyone can see dislikes:
+        return true;
+    }
+
+    /**
+     * Determine whether the user can like the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\PostComment  $comment
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function like(User $user, PostComment $comment, Post $post)
+    {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can dislike the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\PostComment  $comment
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function dislike(User $user, PostComment $comment, Post $post)
+    {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can remove their like or dislike from the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\PostComment  $comment
+     * @param  \App\Models\Like  $like
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function unlike(User $user, PostComment $comment, Post $post, Like $like)
+    {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
+    }
+
+    /**
      * Determine whether the user can view any models.
      *
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(?User $user)
+    public function viewAny(?User $user, Post $post)
     {
         // Anyone, even guests, can view comments.
 
@@ -50,7 +127,7 @@ class PostCommentPolicy
      * @param  \App\Models\PostComment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(?User $user, PostComment $comment)
+    public function view(?User $user, PostComment $comment, Post $post)
     {
         // Anyone, even guests, can view comments.
 
@@ -63,10 +140,14 @@ class PostCommentPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user, Post $post)
     {
         // "user" isn't optional so they are logged in.
-        return true;
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
     }
 
     /**
@@ -76,12 +157,16 @@ class PostCommentPolicy
      * @param  \App\Models\PostComment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, PostComment $comment)
+    public function update(User $user, PostComment $comment, Post $post)
     {
         // Can edit your own comments.
         //
         // For more info see:
         // https://laravel.com/docs/8.x/authorization#policy-responses
+
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
 
         return $user->id === $comment->user_id
             ? Response::allow()
@@ -95,8 +180,12 @@ class PostCommentPolicy
      * @param  \App\Models\PostComment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, PostComment $comment)
+    public function delete(User $user, PostComment $comment, Post $post)
     {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
         // We don't support deleting comments yet. That might change what page
         // other comments are at.
         return Response::deny("Deleting comments is currently not supported");

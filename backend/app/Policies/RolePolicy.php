@@ -11,25 +11,6 @@ class RolePolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Perform pre-authorization checks.
-     *
-     * @param  \App\Models\User  $user
-     * @param  string  $ability
-     * @return void|bool
-     */
-    public function before(User $user, $ability)
-    {
-        // For more info see:
-        // https://laravel.com/docs/8.x/authorization#policy-filters
-
-        if ($user->isAdministrator()) {
-            // Admins can do anything
-            return true;
-        }
-        // If this returns null then the normal method is used.
-    }
-
     /** Determine whether the user can see all users with a specific role.
      *
      * For showing the roles of a single user, please see
@@ -37,21 +18,43 @@ class RolePolicy
      */
     public function showUserRoles(?User $user, Role $role)
     {
-        if ($user && $user->hasRole($role->id)) {
-            // Can see others that have the same role as yourself:
+        if ($user->isAdministrator()) {
             return Response::allow();
         }
+
+        if ((!$role->isRestriction()) && $user && $user->hasRole($role->id)) {
+            // Can see others that have the same role as yourself (unless the
+            // role was a punishment):
+            return Response::allow();
+        }
+
         return Response::deny("You can't see all users that have this role.");
     }
     /** Add a new role to a user. */
     public function addUserRole(User $user, Role $role, User $affectedUser)
     {
+        if ($user->isAdministrator()) {
+            return Response::allow();
+        }
+
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
         // Only admins
         return Response::deny("You can't add roles to users.");
     }
     /** Remove a role from a user. */
     public function removeUserRole(User $user, Role $role, User $affectedUser)
     {
+        if ($user->isAdministrator()) {
+            return Response::allow();
+        }
+
+        if ($role->isRestriction()) {
+            return Response::deny("You cannot remove a restriction from yourself.");
+        }
+
         return $user->id === $affectedUser->id
             ? Response::allow()
             : Response::deny('You can only remove roles from yourself.');
@@ -90,6 +93,10 @@ class RolePolicy
      */
     public function create(User $user)
     {
+        if ($user->isAdministrator()) {
+            return Response::allow();
+        }
+
         // Only admins can create new roles
         return Response::deny("You can't create new roles.");
     }
@@ -103,6 +110,13 @@ class RolePolicy
      */
     public function update(User $user, Role $role)
     {
+        if ($user->isAdministrator()) {
+            if ($role->isHardcoded()) {
+                Response::deny("You can't change a hardcoded role.");
+            }
+            return Response::allow();
+        }
+
         // Only admins can change roles
         return Response::deny("You can't change existing roles.");
     }
@@ -116,6 +130,13 @@ class RolePolicy
      */
     public function delete(User $user, Role $role)
     {
+        if ($user->isAdministrator()) {
+            if ($role->isHardcoded()) {
+                Response::deny("You can't delete a hardcoded role.");
+            }
+            return Response::allow();
+        }
+
         // Only admins can delete roles
         return Response::deny("You can't remove existing roles.");
     }

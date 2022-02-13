@@ -5,25 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Post extends Model
+class Like extends Model
 {
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * Indicates if the model should be timestamped.
      *
-     * @var array
+     * @var bool
      */
-    protected $fillable = ['title', 'body'];
+    public $timestamps = false;
 
     /**
-     * The attributes that should be hidden for arrays.
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'is_like',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
     protected $hidden = [
-        'image',
-        'image_mime_type',
         'entry',
         'entry_id',
     ];
@@ -43,12 +50,14 @@ class Post extends Model
         return $this->hasOne(Entry::class);
     }
 
-    /** Get the comments for this post. */
-    public function comments()
+    /**
+     * Get the "entry" that was liked or disliked.
+     */
+    public function likeable()
     {
-        return $this->hasMany(PostComment::class);
+        return $this->belongsTo(Entry::class, 'likeable_id');
     }
-    /** Get the user that made this post. */
+    /** Get the user that expressed their like or dislike. */
     public function user()
     {
         return $this->belongsTo(User::class);

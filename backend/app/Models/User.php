@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,7 @@ class User extends Authenticatable // implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'content_scrambler_algorithm',
     ];
 
     /**
@@ -32,6 +34,9 @@ class User extends Authenticatable // implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'content_scrambler_algorithm',
+        'entry',
+        'entry_id',
     ];
 
     /**
@@ -50,6 +55,22 @@ class User extends Authenticatable // implements MustVerifyEmail
      */
     protected $appends = ['roles'];
 
+    /**
+     * All of the relationships to be touched. (Sync "updated_at" timestamp)
+     *
+     * @var array
+     */
+    protected $touches = ['entry'];
+
+
+    /**
+     * Get the "entry" that owns this model.
+     */
+    public function entry()
+    {
+        return $this->hasOne(Entry::class);
+    }
+
 
     /** Used to automatically add the "roles" field/attribute to serialized
      * responses.
@@ -62,18 +83,109 @@ class User extends Authenticatable // implements MustVerifyEmail
         return $this->roles()->get(['id']);
     }
 
-    /** Get the posts that this user has made. */
+    /** The posts that this user has made. */
     public function posts()
     {
         return $this->hasMany(Post::class);
     }
-    /** Get the comments that this user has made. */
+    /** The comments that this user has made. */
     public function comments()
     {
         return $this->hasMany(PostComment::class);
     }
+    /** The actions that this user has done. Such as creating a post or "liking" something. */
+    public function actions()
+    {
+        return $this->belongsToMany(Entry::class, 'user_actions', 'user_id', 'entry_id');
+    }
 
-    /** Get the roles that this user has. */
+    public function liked_entries()
+    {
+        // Info: https://laravel.com/docs/9.x/eloquent-relationships#defining-custom-intermediate-table-models
+        return $this->belongsToMany(Entry::class, 'likes', 'user_id', 'likeable_id')->using(Like::class);
+    }
+
+    /** The likes or dislikes that this user has expressed. */
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+    public function like(Entry $entry)
+    {
+        return $this->createLike($entry, true);
+    }
+    public function dislike(Entry $entry)
+    {
+        return $this->createLike($entry, false);
+    }
+    /** Add a like or dislike from this user to a certain entry. */
+    public function createLike(Entry $entry, bool $isLike)
+    {
+        return DB::transaction(function () use ($entry, $isLike) {
+            $previousLike = $this->likeInfo($entry)->first();
+            if ($previousLike !== null) {
+                if ($previousLike->is_like === $isLike) {
+                    // The correct opinion is already expressed (for example a
+                    // like if we wanted to like):
+                    return $previousLike;
+                } else {
+                    // Delete the incorrect opinion (for example a dislike if we
+                    // want to like):
+                    $previousLike->delete();
+                }
+            }
+
+            $like = new Like(['is_like' => $isLike]);
+            $like->user()->associate($this);
+            $like->likeable()->associate($entry);
+            $like->save();
+
+            // Create entry for like:
+            Entry::createForUser($this, $like);
+
+            return $like;
+        });
+    }
+    /**
+     * Remove a like or disliked made by this user.
+     *
+     * @param \App\Models\Entry $entry The `Entry` which the like or disliked
+     * should be removed from.
+     * @param ?Callable $conditionalRemove This callback is provided the `Like`
+     * that is about to remove and can return `false` if the like shouldn't
+     * actually be removed.
+     * @return bool `true` if a `Like` was removed.
+     */
+    public function removeLike(Entry $entry, ?callable $conditionalRemove = null)
+    {
+        // Callable type hint:
+        // https://stackoverflow.com/questions/29730720/php-type-hinting-difference-between-closure-and-callable
+        return DB::transaction(function () use ($entry, $conditionalRemove) {
+            $like = $this->likeInfo($entry)->get();
+            if ($like === null) return false;
+
+            if ($conditionalRemove !== null && $conditionalRemove($like) === false) {
+                // Canceled:
+                return false;
+            }
+
+            $like->delete();
+
+            return true;
+        });
+    }
+    /** A query for like info for an entry. Chain with `->get()` to get the info
+     * or `->exists()` to check for its existence. */
+    public function likeInfo(Entry $likeable)
+    {
+        // See:
+        // - https://stackoverflow.com/questions/24555697/check-if-belongstomany-relation-exists-laravel
+        // - https://dev.to/bdelespierre/how-to-implement-a-simple-like-system-with-laravel-lfe
+        return $this->likes()
+            ->whereHas('likeable', fn ($q) => $q->whereId($likeable->id));
+    }
+
+    /** The roles that this user has. */
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_roles');
@@ -92,8 +204,20 @@ class User extends Authenticatable // implements MustVerifyEmail
     /** Check if this user has the administrator role. */
     public function isAdministrator()
     {
-        return $this->hasNamedRole('Administrator');
+        return $this->hasNamedRole(Role::ADMIN);
     }
+    /** Check if this user is disabled. */
+    public function isDisabled()
+    {
+        return $this->hasNamedRole(Role::DISABLED);
+    }
+
+    /**
+     * The max value for the content scrambling algorithm attribute.
+     *
+     * @var int
+     */
+    public const MAX_SCRAMBLE_ALGORITHM_VALUE = 6;
 
     public function scrambleText($enhancedText, ?User $userThatWillBeShownText)
     {
@@ -101,8 +225,7 @@ class User extends Authenticatable // implements MustVerifyEmail
             return $enhancedText;
         }
 
-        // TODO: store this inside the database.
-        $algorithm = rand(0, 5);
+        $algorithm = $this->content_scrambler_algorithm;
         if ($algorithm === 0) {
             // randomBetweenStartAndEndOfEachWord:
             $lines = preg_split('/\r\n|\r|\n/', $enhancedText);

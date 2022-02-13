@@ -44,6 +44,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // This method has been disabled in the route file.
+        // Should use the register route provided by Fortify instead.
     }
 
     /**
@@ -79,6 +80,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // This method has been disabled in the route file.
+        $user->delete();
+
+        return 204;
     }
 }

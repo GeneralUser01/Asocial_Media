@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Like;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -28,6 +29,81 @@ class PostPolicy
             return true;
         }
         // If this returns null then the normal method is used.
+    }
+
+    /**
+     * Determine whether the user can see likes for the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function viewLikes(?User $user, Post $post)
+    {
+        // Anyone cam see likes:
+        return true;
+    }
+
+    /**
+     * Determine whether the user can see dislikes for the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function viewDislikes(?User $user, Post $post)
+    {
+        // Anyone can see dislikes:
+        return true;
+    }
+
+    /**
+     * Determine whether the user can like the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function like(User $user, Post $post)
+    {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can dislike the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function dislike(User $user, Post $post)
+    {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can remove their like or dislike from the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Post  $post
+     * @param  \App\Models\Like  $like
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function unlike(User $user, Post $post, Like $like)
+    {
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
     }
 
     /**
@@ -69,7 +145,11 @@ class PostPolicy
     public function create(User $user)
     {
         // "user" isn't optional so they are logged in.
-        return true;
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
+        return Response::allow();
     }
 
     /**
@@ -85,6 +165,10 @@ class PostPolicy
         //
         // For more info see:
         // https://laravel.com/docs/8.x/authorization#policy-responses
+
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
 
         return $user->id === $post->user_id
             ? Response::allow()
@@ -103,10 +187,17 @@ class PostPolicy
         // Only admins can delete posts since that would delete all comments as
         // well.
 
+        if ($user->isDisabled()) {
+            return Response::deny("You are disabled and can't do anything");
+        }
+
         // Could support deleting posts without comments:
         // if (! $post->comments()->exists()) { return Response::allow(); }
 
-        return Response::deny("Deleting posts is currently not supported.");
+        // Users are allowed to delete their own posts:
+        return $user->id === $post->user_id
+            ? Response::allow()
+            : Response::deny('You do not own this post.');
     }
 
     /**

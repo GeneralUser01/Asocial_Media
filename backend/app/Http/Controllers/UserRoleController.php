@@ -42,8 +42,13 @@ class UserRoleController extends Controller
 
         $this->authorize('addUserRole', [$role, $user]);
 
-        // Add this role to the user:
-        $user->roles()->sync([$role->id], false);
+        // Add this role to the user.
+        //
+        // See:
+        // https://stackoverflow.com/questions/17472128/preventing-laravel-adding-multiple-records-to-a-pivot-table
+        // See:
+        // https://laravel.com/docs/9.x/eloquent-relationships#syncing-associations
+        $user->roles()->syncWithoutDetaching([$role->id]);
     }
 
     /**
@@ -82,6 +87,7 @@ class UserRoleController extends Controller
         // Remove this role form this user.
         //
         // See: https://www.amitmerchant.com/attach-detach-sync-laravel/
+        // See: https://laravel.com/docs/9.x/eloquent-relationships#attaching-detaching
         $user->roles()->detach($role->id);
 
         return 204;
