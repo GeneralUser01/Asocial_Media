@@ -58,4 +58,7 @@ export class UserService {
   getUsers(page = 1) {
     return this.http.get<WrappedCollection<User[]>>(this.userUrl + '?page=' + page, this.httpOptions);
   }
+  deleteUser(userId: number | string) {
+    return this.http.delete<Wrapped<User>>(this.userUrl + userId, this.httpOptions);
+  }
 }
