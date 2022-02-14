@@ -15,3 +15,7 @@ a > div {
     border-radius: 5px;
     white-space: pre-wrap;
 }
+a:hover {
+    text-decoration: none;
+    color: rgb(0, 0, 255);
+}
