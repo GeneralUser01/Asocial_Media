@@ -28,6 +28,7 @@ export class PostCreationComponent implements OnInit {
   fileData: null | ArrayBuffer = null;
   fileSelect(event: any) {
     this.selectedFile = event.target.files[0] as File;
+    // let fileName = this.selectedFile.name;
     let myReader = new FileReader();
     // let fileType = inputValue.parentElement.id;
 

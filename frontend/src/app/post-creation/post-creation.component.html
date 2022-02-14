@@ -1,5 +1,20 @@
 <h2>Post creation</h2>
 
+<div class="plain-row">
+  <label for="post-title">Title:</label>
+  <div style="margin-left: auto;" class="plain-row">
+      <label>Image attachment: </label>
+      <input
+      type="file"
+      name="image"
+      (change)="fileSelect($event)"
+      #image>
+      <div class="plain-row">
+        <button id="btn-browse-images" (click)="image.click()">Browse</button>
+        <!-- <span *ngIf="fileName">{{ fileName }}</span> -->
+      </div>
+  </div>
+</div>
 <form
 *ngIf="!isSuccessful"
 name="form"
@@ -7,19 +22,6 @@ name="form"
 #f="ngForm"
 novalidate
 >
-  <div class="plain-row">
-    <label for="post-title">Title:</label>
-    <div style="margin-left: auto;" class="plain-row">
-        <label>Image attachment: </label>
-        <input
-        id="btn-browse-images"
-        type="file"
-        name="image"
-        [(ngModel)]="form.image"
-        (change)="fileSelect($event)"
-        #image="ngModel">
-    </div>
-  </div>
   <input
   id="post-title"
   type="text"
