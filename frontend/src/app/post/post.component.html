@@ -21,11 +21,11 @@
         <p>{{ postComment?.content }}</p>
         <!-- <form name="feedback-controls" (ngSubmit)="onLike()"></form> -->
         <div class="plain-row flex-content-to-the-right">
-            <div class="likes">
-                <button>Like</button>
+            <div class="likes {{ postComment?.opinion === 'liked' ? 'active' : '' }}">
+                <button (click)="likeComment(postComment)"><span>{{ postComment?.likes }}</span> Like</button>
             </div>
-            <div class="dislikes">
-                <button>Dislike</button>
+            <div class="dislikes {{ postComment?.opinion === 'disliked' ? 'active' : '' }}">
+                <button (click)="dislikeComment(postComment)"><span>{{ postComment?.dislikes }}</span> Dislike</button>
             </div>
         </div>
     </ng-container>

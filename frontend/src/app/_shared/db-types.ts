@@ -81,3 +81,14 @@ export interface CollectionLinks {
   /** URL for the next page in this collection. */
   next: string | null,
 }
+
+export type Opinion = 'liked' | 'disliked' | 'neutral';
+
+export interface Likeable {
+  /** Total number of likes. */
+  likes?: number,
+  /** Total number of dislikes. */
+  dislikes?: number,
+  /** Your opinion. */
+  opinion?: Opinion,
+}

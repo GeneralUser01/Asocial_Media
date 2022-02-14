@@ -14,6 +14,14 @@ section p {
     margin-bottom: 0;
 }
 
+.likes.active button {
+    background-color: blue;
+    color: white;
+}
+.dislikes.active button {
+    background-color:red;
+}
+
 h2, h4 {
     border-bottom-style: solid;
     border-width: thin;

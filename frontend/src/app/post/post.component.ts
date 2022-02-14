@@ -8,7 +8,8 @@ import { Post, PostService } from '../_services/post.service';
 @Component({
   selector: 'app-post',
   templateUrl: './post.component.html',
-  styleUrls: ['./post.component.css']
+  styleUrls: ['./post.component.css'],
+  encapsulation: ViewEncapsulation.Emulated,
 })
 export class PostComponent implements OnInit {
   post: null | Post = null;
@@ -71,6 +72,33 @@ export class PostComponent implements OnInit {
       // Use empty array in case of errors:
       .pipe(catchError((error) => of(null)))
       .subscribe((comments) => this.postComments = comments?.data ?? []);
+  }
+
+  updateComment(commentId: number | string) {
+    if (this.postId === null) return;
+    this.commentService.getComment(this.postId, commentId).subscribe((comment) => {
+      for (let i = 0; i < this.postComments.length; i++) {
+        if (this.postComments[i].id === commentId) {
+          this.postComments[i] = comment;
+        }
+      }
+    });
+  }
+  likeComment(comment: PostComment | null) {
+    if (!comment) return;
+    if (comment.opinion === 'liked') {
+      this.commentService.unlikeComment(comment.post_id, comment.id).subscribe(() => this.updateComment(comment.id));
+    } else {
+      this.commentService.likeComment(comment.post_id, comment.id).subscribe(() => this.updateComment(comment.id));
+    }
+  }
+  dislikeComment(comment: PostComment | null) {
+    if (!comment) return;
+    if (comment.opinion === 'disliked') {
+      this.commentService.unlikeComment(comment.post_id, comment.id).subscribe(() => this.updateComment(comment.id));
+    } else {
+      this.commentService.dislikeComment(comment.post_id, comment.id).subscribe(() => this.updateComment(comment.id));
+    }
   }
 
   onDelete(): void {
