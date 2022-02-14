@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use SebastianBergmann\Environment\Console;
 
 class User extends Authenticatable // implements MustVerifyEmail
 {
@@ -161,7 +162,7 @@ class User extends Authenticatable // implements MustVerifyEmail
         // Callable type hint:
         // https://stackoverflow.com/questions/29730720/php-type-hinting-difference-between-closure-and-callable
         return DB::transaction(function () use ($entry, $conditionalRemove) {
-            $like = $this->likeInfo($entry)->get();
+            $like = $this->likeInfo($entry)->first();
             if ($like === null) return false;
 
             if ($conditionalRemove !== null && $conditionalRemove($like) === false) {
@@ -174,7 +175,7 @@ class User extends Authenticatable // implements MustVerifyEmail
             return true;
         });
     }
-    /** A query for like info for an entry. Chain with `->get()` to get the info
+    /** A query for like info for an entry. Chain with `->first()` to get the info
      * or `->exists()` to check for its existence. */
     public function likeInfo(Entry $likeable)
     {
@@ -217,9 +218,9 @@ class User extends Authenticatable // implements MustVerifyEmail
      *
      * @var int
      */
-    public const MAX_SCRAMBLE_ALGORITHM_VALUE = 6;
+    public const MAX_SCRAMBLE_ALGORITHM_VALUE = 8;
 
-    public function scrambleText($enhancedText, ?User $userThatWillBeShownText)
+    public function scrambleText($enhancedText, ?User $userThatWillBeShownText = null)
     {
         if ($this->id === $userThatWillBeShownText?->id) {
             return $enhancedText;
@@ -242,13 +243,14 @@ class User extends Authenticatable // implements MustVerifyEmail
                 return $line;
             }, $lines);
             $enhancedText = implode("\n", $lines);
-            $enhancedText = preg_replace("/^-(.*)-$/", Str::random(), $enhancedText, -1);
+            // $enhancedText = preg_replace("/^-(.*)-$/", Str::random(), $enhancedText, -1);
             return $enhancedText;
         } else if ($algorithm === 1) {
             // extraConsonantForDoubleConsonants:
-            $enhancedText = preg_replace('"är"', 'ä', $enhancedText);
-            $enhancedText = preg_replace('"Är"', 'Ä', $enhancedText);
-            $enhancedText = preg_replace('/e/i', 'ä', $enhancedText);
+            $enhancedText = str_replace("är", 'ä', $enhancedText);
+            $enhancedText = str_replace("Är", 'Ä', $enhancedText);
+            $enhancedText = str_replace('e', 'ä', $enhancedText);
+            $enhancedText = str_replace('E', 'Ä', $enhancedText);
             return $enhancedText;
         } else if ($algorithm === 2) {
             // The 'Uwuifier' Github repository: https://github.com/Schotsl/Uwuifier-node
@@ -298,55 +300,140 @@ class User extends Authenticatable // implements MustVerifyEmail
             // theElegantNetOfThePeople
             // replace the following patterns with a random result for each occurrence
             $youIsU = ['u', 'U'];
-            $exclaiming = [' lol', ' lmao', ' rofl', ' literally', ' XD'];
-            $oh = ['o', 'O'];
-            $r = ['', '/"[a-z]/'];
-            $f = ['', ' F ', '/"[a-z]/'];
-            $e = ['', ' E ', '/"[a-z]/'];
-            $enhancedText = preg_replace_callback('~/you/i~', function () use ($youIsU) {
+            $exclaiming = [' lol', ' lmao', ' rofl', ' literally!', ' smh.', ' XD'];
+            $oh = ['o', '0'];
+            $r = ['', '/[a-zA-Z]/'];
+            $f = ['', ' F ', '/[a-zA-Z]/'];
+            $e = ['', ' E ', '/[a-zA-Z]/'];
+            $enhancedText = preg_replace_callback('/you/i', function () use ($youIsU) {
                 $youIsUIndex = rand(0, 1);
                 return $youIsU[$youIsUIndex];
             }, $enhancedText);
-            $enhancedText = preg_replace('/and/i', "&", $enhancedText);
-            $enhancedText = preg_replace('/one/i', '1', $enhancedText);
-            $enhancedText = preg_replace('/free/i', '3', $enhancedText);
-            $enhancedText = preg_replace(['/to/i', '/too/i'], '2', $enhancedText);
-            $enhancedText = preg_replace('/for/i', '4', $enhancedText);
-            $enhancedText = preg_replace('/ate/i', '8', $enhancedText);
-            $enhancedText = preg_replace('/a/i', 'u', $enhancedText);
-            $enhancedText = preg_replace('/that/i', 'dat', $enhancedText);
-            $enhancedText = preg_replace('/this/i', 'dis', $enhancedText);
-            $enhancedText = preg_replace('/the/i', 'theh', $enhancedText);
-            $enhancedText = preg_replace('/why/i', 'y', $enhancedText);
-            $enhancedText = preg_replace('/w/i', 'v', $enhancedText);
-            $enhancedText = preg_replace('/my/i', 'our', $enhancedText);
-            $enhancedText = preg_replace('/community/i', 'comrades', $enhancedText);
+            $enhancedText = str_ireplace('and', "&", $enhancedText);
+            $enhancedText = str_ireplace('one', '1', $enhancedText);
+            $enhancedText = str_ireplace(['be', 'bee'], 'b', $enhancedText);
+            $enhancedText = str_ireplace(['free', 'three', 'tree'], '3', $enhancedText);
+            $enhancedText = str_ireplace(['okay', 'ok'], 'k', $enhancedText);
+            $enhancedText = str_ireplace(['to', 'too', 'two'], '2', $enhancedText);
+            $enhancedText = str_ireplace('for', '4', $enhancedText);
+            $enhancedText = str_ireplace(['ate', 'ight'], '8', $enhancedText);
+            $enhancedText = str_ireplace('really', 'rly', $enhancedText);
+            $enhancedText = str_ireplace('a', 'e', $enhancedText);
+            $enhancedText = str_ireplace('that', 'dat', $enhancedText);
+            $enhancedText = str_ireplace('this', 'dis', $enhancedText);
+            $enhancedText = str_ireplace('they', 'dey', $enhancedText);
+            $enhancedText = str_ireplace('those', 'dose', $enhancedText);
+            $enhancedText = str_ireplace('the', 'da', $enhancedText);
+            $enhancedText = str_ireplace('why', 'y', $enhancedText);
+            $enhancedText = str_ireplace('though', 'tho(ugh)', $enhancedText);
+            $enhancedText = str_ireplace('I', 'ಠ', $enhancedText);
+            $enhancedText = str_ireplace('see', 'c', $enhancedText);
+            $enhancedText = str_ireplace('w', 'vv', $enhancedText);
+            $enhancedText = str_ireplace('my', 'our', $enhancedText);
+            $enhancedText = str_ireplace('community', 'comrades', $enhancedText);
             $enhancedText = preg_replace_callback('~!~', function () use ($exclaiming) {
-                $exclaimingIndex = rand(0, 4);
+                $exclaimingIndex = rand(0, 5);
                 return $exclaiming[$exclaimingIndex];
             }, $enhancedText);
-            $enhancedText = preg_replace_callback('~/oh/i~', function () use ($oh) {
+            // $enhancedText = str_ireplace('o', $oh[rand(0, 1)], $enhancedText);
+            $enhancedText = preg_replace_callback('/o/i', function () use ($oh) {
                 $ohIndex = rand(0, 1);
                 return $oh[$ohIndex];
             }, $enhancedText);
-            $enhancedText = preg_replace('/really/i', 'rly', $enhancedText);
-            $enhancedText = preg_replace_callback('~/r/i~', function () use ($r) {
-                $rIndex = rand(0, 1);
-                return $r[$rIndex];
-            }, $enhancedText);
-            $enhancedText = preg_replace_callback('~/f/i~', function () use ($f) {
-                $fIndex = rand(0, 2);
-                return $f[$fIndex];
-            }, $enhancedText);
-            $enhancedText = preg_replace_callback('~/e/i~', function () use ($e) {
-                $eIndex = rand(0, 2);
-                return $e[$eIndex];
-            }, $enhancedText);
+            // $enhancedText = preg_replace_callback('/r/i', function () use ($r) {
+            //     $rIndex = rand(0, 1);
+            //     return $r[$rIndex];
+            // }, $enhancedText);
+            // $enhancedText = preg_replace_callback('/f/i', function () use ($f) {
+            //     $fIndex = rand(0, 2);
+            //     return $f[$fIndex];
+            // }, $enhancedText);
+            // $enhancedText = preg_replace_callback('/e/i', function () use ($e) {
+            //     $eIndex = rand(0, 2);
+            //     return $e[$eIndex];
+            // }, $enhancedText);
             return $enhancedText;
         } else if($algorithm === 7) {
-            // whySayManyWordWhenFewWordDoTrick
+            // whySayLotWordWhenFewWordDoTrick
+            $enhancedText = str_ireplace([" are ", " is ", " was ", " were ", " would ", " I ", " I'd ", " I'll ", " I'm ", " to ", " a ", " an ", " but ", " the "], ' ', $enhancedText);
+            $enhancedText =  str_replace(["'ll", "'re", "'ve", "'d", "'s", "'m"], '', $enhancedText);
+            $enhancedText =  str_replace(["can't", "couldn't", "won't", "wouldn't", "shouldn't"], 'not', $enhancedText);
+            // convert all words (in practice as it stands just a bunch of them) into their base form
+            // first two replacements handles exceptions
+            $enhancedText = str_replace('lying', 'lie', $enhancedText);
+            $enhancedText = str_replace('lives', 'life', $enhancedText);
+            // // examples: liking = like
+            $enhancedText = str_replace('iking', 'like', $enhancedText);
+            if(strpbrk($enhancedText, 'iking ') || strpbrk($enhancedText, 'ting ')) {
+                $enhancedText = str_replace('ing ', '', $enhancedText);
+            }
+            // examples: flying = fly and seeing = see
+            $enhancedText = str_replace('ing', '', $enhancedText);
+            // examples: hiding = hide and fading = fade
+            $enhancedText = str_replace('ding', 'e', $enhancedText);
+            // examples: tries = try and cries = cry
+            $enhancedText = str_replace('ies', 'y', $enhancedText);
+            // examples: finding = find and sending = send
+            $enhancedText = str_replace('ish', '', $enhancedText);
+            // examples: foolishness = fool and hopelessness = hopeless
+            $enhancedText = str_replace('ishness ', '', $enhancedText);
+            // examples: greatness = great
+            $enhancedText = str_replace('ness ', '', $enhancedText);
+            // example: eagerly = eager
+            $enhancedText = str_replace('ely ', 'er', $enhancedText);
+            $enhancedText = str_replace('ers ', 'er', $enhancedText);
+            // example: foolery = fool
+            $enhancedText = str_replace('lery', '', $enhancedText);
+            $enhancedText = str_replace('tly ', 'e ', $enhancedText);
+            // examples: calmly = calm and begrudgingly = begrudging
+            $enhancedText = str_replace('ly ', ' ', $enhancedText);
+            $enhancedText = str_replace('gment', 'e', $enhancedText);
+            $enhancedText = str_replace('gments', 'e', $enhancedText);
+            // examples: confinement = confine and contentment = content
+            $enhancedText = str_replace('ment ', ' ', $enhancedText);
+            // examples: fumes = fume and comes = come
+            $enhancedText = str_replace('mes ', 'me ', $enhancedText);
+            // examples: onions = onion and exceptions = exception
+            $enhancedText = str_replace('ons ', 'on ', $enhancedText);
+            // examples: hives = hive and waves = wave
+            $enhancedText = str_replace('ves ', 've ', $enhancedText);
+            $enhancedText = str_replace('es ', ' ', $enhancedText);
+            $enhancedText = str_replace('gs ', 'g ', $enhancedText);
+            // examples: shows = show and lows = low
+            $enhancedText = str_replace('ws', 'w', $enhancedText);
+            $enhancedText = str_replace('hs', 'h', $enhancedText);
+            // examples: finds = find and raids = raid
+            $enhancedText = str_replace('ds', 'd', $enhancedText);
+            // examples: heights = height and rights = right
+            $enhancedText = str_replace('ts', 't', $enhancedText);
+            // examples: mastery = master and wastery = waster
+            $enhancedText = str_replace('tery', 'ter', $enhancedText);
+            // examples: delightful = delight and spiteful = spite
+            $enhancedText = str_replace('tful', 't', $enhancedText);
+            // examples: spiteful = spite and hateful = hate
+            $enhancedText = str_replace('eful', 'e', $enhancedText);
+            return $enhancedText;
         } else if($algorithm === 8) {
-            // botchedKeyToKeyboardLayout
+            // botchedCharacterToKeyboardLayout
+            $chrs = [];
+            $enhancedChrs = [];
+            for ($i = 0; $i<strlen($enhancedText); $i++) {
+                $chrs[] = ord($enhancedText[$i]);
+            }
+            for ($i = 0; $i<count($chrs); $i++) {
+                if($chrs[$i] > 64 && $chrs[$i] < 91 || $chrs[$i] > 96 && $chrs[$i] < 123) {
+                    if (rand(0, 5) === 0) {
+                        $chrs[$i] += rand(-1, 1);
+                    }
+                }
+                $enhancedChrs[] = chr($chrs[$i]);
+            }
+            $enhancedText = implode('', $enhancedChrs);
+            return $enhancedText;
+        } else if($algorithm === 9) {
+            // glyphLike (random sentence order and random word order with tabs for every new line or punctuation)
+        } else if($algorithm === 10) {
+            // glitchedInTransmission ()
         } else {
             throw new \Exception("Invalid text processing algorithm: $algorithm");
         }

@@ -26,6 +26,19 @@ class PostCommentResource extends JsonResource
             $data['dislikes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', false)->count();
         }
 
+        if ($request->user() && $entry) {
+            $like = $request->user()->likeInfo($entry)->first();
+            $opinion = 'neutral';
+            if ($like) {
+                if ($like->is_like) {
+                    $opinion = 'liked';
+                } else {
+                    $opinion = 'disliked';
+                }
+            }
+            $data['opinion'] = $opinion;
+        }
+
         return $data;
     }
 }

@@ -89,17 +89,17 @@ class PostController extends Controller
     {
         $this->authorize('like', $post);
 
-        $request->user()->like($post);
+        $request->user()->like($post->entry()->first());
     }
     public function dislike(Request $request, Post $post)
     {
         $this->authorize('dislike', $post);
 
-        $request->user()->dislike($post);
+        $request->user()->dislike($post->entry()->first());
     }
     public function unlike(Request $request, Post $post)
     {
-        $request->user()?->removeLike($post, function ($like) use ($post) {
+        $request->user()?->removeLike($post->entry()->first(), function ($like) use ($post) {
             $this->authorize('unlike', [$post, $like]);
             return true;
         });
