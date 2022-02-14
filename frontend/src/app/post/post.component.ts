@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { PostComment, PostCommentService } from '../_services/post-comment.service';
 import { Post, PostService } from '../_services/post.service';
@@ -15,7 +15,8 @@ export class PostComponent implements OnInit {
   post: null | Post = null;
   postId: null | string = null;
   image: null | any = null;
-  isLoading = true;
+  isLoadingPost = true;
+  isLoadingPostComments = true;
 
   postComments: PostComment[] = [];
 
@@ -38,6 +39,7 @@ export class PostComponent implements OnInit {
     private postService: PostService,
     private commentService: PostCommentService,
     private activatedRoute: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -46,16 +48,16 @@ export class PostComponent implements OnInit {
       this.postId = id;
       if (!id) {
         this.post = null;
-        this.isLoading = false;
+        this.isLoadingPost = false;
       } else {
-        this.isLoading = true;
+        this.isLoadingPost = true;
 
         this.postService.getPost(id)
           // Use null in case of errors:
           .pipe(catchError((error) => of(null)))
           .subscribe(result => {
             this.post = result;
-            this.isLoading = false;
+            this.isLoadingPost = false;
           });
 
         this.image = 'api/posts/' + id + '/image';
@@ -66,8 +68,10 @@ export class PostComponent implements OnInit {
   }
 
   updateComments() {
-    if (this.postId === null) return;
-
+    if (this.postId === null) {
+      this.isLoadingPostComments = false;
+      return;
+    }
     this.commentService.getComments(this.postId)
       // Use empty array in case of errors:
       .pipe(catchError((error) => of(null)))
@@ -100,8 +104,12 @@ export class PostComponent implements OnInit {
       this.commentService.dislikeComment(comment.post_id, comment.id).subscribe(() => this.updateComment(comment.id));
     }
   }
+  deleteComment(comment: PostComment | null) {
+    if (!comment) return;
+    this.commentService.deleteComment(comment.post_id, comment.id).subscribe(() => this.updateComments())
+  }
 
-  onDelete(): void {
+  deletePost(): void {
     // Forget previous errors:
     this.postDeletionErrorMessage = '';
     this.isPostDeletionFailed = false;
@@ -112,6 +120,8 @@ export class PostComponent implements OnInit {
         console.log('Post deleted successfully: ', data);
         this.postDeletionIsSuccessful = true;
         this.isPostDeletionFailed = false;
+        this.router.navigate(['/']);
+        
       },
       error: (err) => {
         console.log('Post deletion failed: ', err);

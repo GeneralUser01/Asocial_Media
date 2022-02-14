@@ -14,7 +14,12 @@ section p {
     margin-bottom: 0;
 }
 
+/* .likes button {
+    background-color: burlywood;
+    transition: 0.3s;
+} */
 .likes.active button {
+    transition: 0.3s;
     background-color: blue;
     color: white;
 }
@@ -40,16 +45,19 @@ img {
 .flex-content-to-the-right {
     justify-content: end;
 }
+.margin-above {
+    margin-top: 1rem;
+}
+.margin-below {
+    margin-bottom: 1rem;
+}
 
 section {
     min-height: 7vh;
 }
 
-button {
+form button {
     width: 100%;
-}
-section button {
-    margin-bottom: 1rem;
 }
 
 .btn-edit {

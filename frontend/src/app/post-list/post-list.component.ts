@@ -1,4 +1,5 @@
 import { Component, NgModule, OnInit, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { Post, PostService } from '../_services/post.service';
 
 // /**
@@ -18,7 +19,7 @@ import { Post, PostService } from '../_services/post.service';
 export class PostListComponent implements OnInit {
   posts: Post[] = [];
 
-  constructor(private postService: PostService) { }
+  constructor(private postService: PostService, private router: Router) { }
 
   ngOnInit(): void {
     this.postService.getPosts().subscribe(result => this.posts = result.data);

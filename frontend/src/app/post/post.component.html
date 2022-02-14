@@ -1,12 +1,21 @@
 <ng-container *ngIf="!!post; else noPost">
     <img [src]="image" onerror="this.style.display='none'">
-    <form name="deletion-controls" (ngSubmit)="onDelete()"><button>Delete post</button></form>
+
+    <form name="post-controls" (ngSubmit)="deletePost()"><button (click)="deletePost()">Delete post</button>
+        <div class="alert alert-warning" *ngIf="f.submitted && isPostDeletionFailed">
+            Post deletion failed!<br />{{ postCommentErrorMessage }}
+        </div>
+        <div class="alert alert-success" *ngIf="postDeletionIsSuccessful">
+            Your post deletion is successful!
+        </div>
+    </form>
+
     <h2>{{ post?.title }}</h2>
     <p>{{ post?.body }}</p>
 </ng-container>
 
 <ng-template #noPost>
-    <h3 *ngIf="!isLoading; else loadingPost">Sorry, but this post doesn't exist.</h3>
+    <h3 *ngIf="!isLoadingPost; else loadingPost">Sorry, but this post doesn't exist.</h3>
 </ng-template>
 
 <ng-template #loadingPost>
@@ -18,9 +27,11 @@
 <h4>Comment Section</h4>
 <section>
     <ng-container *ngFor="let postComment of postComments">
+        <div class="plain-row flex-content-to-the-right margin-above">
+            <button (click)="deleteComment(postComment)">Delete</button>
+        </div>
         <p>{{ postComment?.content }}</p>
-        <!-- <form name="feedback-controls" (ngSubmit)="onLike()"></form> -->
-        <div class="plain-row flex-content-to-the-right">
+        <div class="plain-row flex-content-to-the-right margin-below">
             <div class="likes {{ postComment?.opinion === 'liked' ? 'active' : '' }}">
                 <button (click)="likeComment(postComment)"><span>{{ postComment?.likes }}</span> Like</button>
             </div>
@@ -30,13 +41,13 @@
         </div>
     </ng-container>
 
-    <!-- <ng-template #noComments>
-        <h6 *ngIf="!isLoading; else loadingComments">No comments.</h6>
+    <ng-template #noComments>
+        <h6 *ngIf="!isLoadingPostComments; else loadingComments">No comments.</h6>
     </ng-template>
 
     <ng-template #loadingComments>
         <h5>Loading Comments...</h5>
-    </ng-template> -->
+    </ng-template>
 </section>
 
 <form
