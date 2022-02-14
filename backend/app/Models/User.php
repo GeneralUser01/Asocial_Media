@@ -301,19 +301,19 @@ class User extends Authenticatable // implements MustVerifyEmail
             // replace the following patterns with a random result for each occurrence
             $youIsU = ['u', 'U'];
             $exclaiming = [' lol', ' lmao', ' rofl', ' literally!', ' smh.', ' XD'];
-            $oh = ['o', '0'];
-            $r = ['', '/[a-zA-Z]/'];
-            $f = ['', ' F ', '/[a-zA-Z]/'];
-            $e = ['', ' E ', '/[a-zA-Z]/'];
+            $o = ['o', '0'];
+            // $r = ['', '/[a-zA-Z]/'];
+            // $f = ['', ' F ', '/[a-zA-Z]/'];
+            // $e = ['', ' E ', '/[a-zA-Z]/'];
             $enhancedText = preg_replace_callback('/you/i', function () use ($youIsU) {
                 $youIsUIndex = rand(0, 1);
                 return $youIsU[$youIsUIndex];
             }, $enhancedText);
             $enhancedText = str_ireplace('and', "&", $enhancedText);
-            $enhancedText = str_ireplace('one', '1', $enhancedText);
             $enhancedText = str_ireplace(['be', 'bee'], 'b', $enhancedText);
-            $enhancedText = str_ireplace(['free', 'three', 'tree'], '3', $enhancedText);
             $enhancedText = str_ireplace(['okay', 'ok'], 'k', $enhancedText);
+            $enhancedText = str_ireplace('one', '1', $enhancedText);
+            $enhancedText = str_ireplace(['free', 'three', 'tree'], '3', $enhancedText);
             $enhancedText = str_ireplace(['to', 'too', 'two'], '2', $enhancedText);
             $enhancedText = str_ireplace('for', '4', $enhancedText);
             $enhancedText = str_ireplace(['ate', 'ight'], '8', $enhancedText);
@@ -324,21 +324,26 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = str_ireplace('they', 'dey', $enhancedText);
             $enhancedText = str_ireplace('those', 'dose', $enhancedText);
             $enhancedText = str_ireplace('the', 'da', $enhancedText);
+            $enhancedText = str_ireplace('oh', 'o', $enhancedText);
             $enhancedText = str_ireplace('why', 'y', $enhancedText);
             $enhancedText = str_ireplace('though', 'tho(ugh)', $enhancedText);
-            $enhancedText = str_ireplace('I', 'ಠ', $enhancedText);
+            $enhancedText = str_ireplace(' I ', ' ಠ ', $enhancedText);
+            $enhancedText = str_ireplace('eye', 'i', $enhancedText);
             $enhancedText = str_ireplace('see', 'c', $enhancedText);
+            $enhancedText = str_ireplace(',', ', ತಎತ,', $enhancedText);
             $enhancedText = str_ireplace('w', 'vv', $enhancedText);
+            $enhancedText = str_ireplace('en', 'n', $enhancedText);
+            $enhancedText = str_ireplace('el', 'l', $enhancedText);
             $enhancedText = str_ireplace('my', 'our', $enhancedText);
             $enhancedText = str_ireplace('community', 'comrades', $enhancedText);
-            $enhancedText = preg_replace_callback('~!~', function () use ($exclaiming) {
+            $enhancedText = preg_replace_callback(['~!~', '~?~', '~.~'], function () use ($exclaiming) {
                 $exclaimingIndex = rand(0, 5);
                 return $exclaiming[$exclaimingIndex];
             }, $enhancedText);
             // $enhancedText = str_ireplace('o', $oh[rand(0, 1)], $enhancedText);
-            $enhancedText = preg_replace_callback('/o/i', function () use ($oh) {
+            $enhancedText = preg_replace_callback('/o/i', function () use ($o) {
                 $ohIndex = rand(0, 1);
-                return $oh[$ohIndex];
+                return $o[$ohIndex];
             }, $enhancedText);
             // $enhancedText = preg_replace_callback('/r/i', function () use ($r) {
             //     $rIndex = rand(0, 1);
@@ -362,7 +367,7 @@ class User extends Authenticatable // implements MustVerifyEmail
             // first two replacements handles exceptions
             $enhancedText = str_replace('lying', 'lie', $enhancedText);
             $enhancedText = str_replace('lives', 'life', $enhancedText);
-            // // examples: liking = like
+            // examples: liking = like
             $enhancedText = str_replace('iking', 'like', $enhancedText);
             if(strpbrk($enhancedText, 'iking ') || strpbrk($enhancedText, 'ting ')) {
                 $enhancedText = str_replace('ing ', '', $enhancedText);
@@ -377,7 +382,7 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = str_replace('ish', '', $enhancedText);
             // examples: foolishness = fool and hopelessness = hopeless
             $enhancedText = str_replace('ishness ', '', $enhancedText);
-            // examples: greatness = great
+            // example: greatness = great
             $enhancedText = str_replace('ness ', '', $enhancedText);
             // example: eagerly = eager
             $enhancedText = str_replace('ely ', 'er', $enhancedText);
