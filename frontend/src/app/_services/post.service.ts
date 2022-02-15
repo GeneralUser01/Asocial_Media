@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { Likeable, Timestamps, WithId, Wrapped, WrappedCollection } from '../_shared/db-types';
+import { Likeable, Timestamps, WithId, WithUserId, Wrapped, WrappedCollection } from '../_shared/db-types';
 
 
 export interface PostContent {
@@ -9,7 +9,7 @@ export interface PostContent {
   body: string,
 }
 
-export type Post = PostContent & WithId & Timestamps & Likeable;
+export type Post = PostContent & WithUserId & WithId & Timestamps & Likeable;
 
 @Injectable({
   providedIn: 'root'

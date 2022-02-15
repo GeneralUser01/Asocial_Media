@@ -2,6 +2,10 @@ export interface WithId {
   id: number,
 }
 
+export interface WithUserId {
+  user_id: number,
+}
+
 export interface CreatedAtTimestamp {
   created_at: string,
 }

@@ -54,4 +54,9 @@ export class RolesService {
   removeRoleFromUser(roleId: number | string, userId: number | string) {
     return this.http.delete(this.getRoleUserUrl(roleId) + userId, this.httpOptions);
   }
+
+  userIsAdmin(user: User): boolean {
+    // TODO: User.roles might be objects or role ids, haven't quite decided yet...
+    return (user.roles as any).some((role: Role) => typeof role === 'object' && role.name === 'Administrator')
+  }
 }

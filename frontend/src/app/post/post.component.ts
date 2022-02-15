@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { PostComment, PostCommentService } from '../_services/post-comment.service';
 import { Post, PostService } from '../_services/post.service';
+import { RolesService } from '../_services/roles.service';
+import { CurrentUser, User, UserService } from '../_services/user.service';
 
 @Component({
   selector: 'app-post',
@@ -17,6 +19,9 @@ export class PostComponent implements OnInit {
   image: null | any = null;
   isLoadingPost = true;
   isLoadingPostComments = true;
+
+  user: CurrentUser | null = null;
+  isAdmin = false;
 
   postComments: PostComment[] = [];
 
@@ -39,7 +44,8 @@ export class PostComponent implements OnInit {
     private postService: PostService,
     private commentService: PostCommentService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private roleService: RolesService,
+    private userService: UserService
   ) { }
 
   ngOnInit(): void {
@@ -49,8 +55,17 @@ export class PostComponent implements OnInit {
       if (!id) {
         this.post = null;
         this.isLoadingPost = false;
+        this.isLoadingPostComments = false;
       } else {
         this.isLoadingPost = true;
+        this.isLoadingPostComments = true;
+
+        this.userService.getCurrentUser().subscribe(user => {
+          this.user = user;
+          this.isAdmin = false;
+          if (!user) return;
+          this.isAdmin = this.roleService.userIsAdmin(user);
+        });
 
         this.postService.getPost(id)
           // Use null in case of errors:
@@ -75,7 +90,10 @@ export class PostComponent implements OnInit {
     this.commentService.getComments(this.postId)
       // Use empty array in case of errors:
       .pipe(catchError((error) => of(null)))
-      .subscribe((comments) => this.postComments = comments?.data ?? []);
+      .subscribe((comments) => {
+        this.postComments = comments?.data ?? [];
+        this.isLoadingPostComments = false;
+      });
   }
 
   updateComment(commentId: number | string) {
@@ -120,8 +138,6 @@ export class PostComponent implements OnInit {
         console.log('Post deleted successfully: ', data);
         this.postDeletionIsSuccessful = true;
         this.isPostDeletionFailed = false;
-        this.router.navigate(['/']);
-        
       },
       error: (err) => {
         console.log('Post deletion failed: ', err);

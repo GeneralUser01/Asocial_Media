@@ -51,6 +51,12 @@ img {
 .margin-below {
     margin-bottom: 1rem;
 }
+.margin-right-of {
+    margin-right: auto;
+}
+.margin-left-of {
+    margin-left: auto;
+}
 
 section {
     min-height: 7vh;
@@ -72,4 +78,8 @@ form button {
     border-color: rgba(138, 83, 26, 0.5);
     color: rgb(216, 97, 76);
     background-color: rgb(24, 26, 27);
+}
+
+.hidden {
+    display: none;
 }

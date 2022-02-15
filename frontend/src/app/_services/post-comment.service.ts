@@ -1,18 +1,18 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { Likeable, Timestamps, WithId, Wrapped, WrappedCollection } from '../_shared/db-types';
+import { Likeable, Timestamps, WithId, WithUserId, Wrapped, WrappedCollection } from '../_shared/db-types';
 
 
 export interface PostCommentContent {
   content: string,
 }
 
-export interface PostCommentParentId {
+export interface WithPostId {
   post_id: number,
 }
 
-export type PostComment = PostCommentContent & PostCommentParentId & WithId & Timestamps & Likeable;
+export type PostComment = PostCommentContent & WithPostId & WithUserId & WithId & Timestamps & Likeable;
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +39,7 @@ export class PostCommentService {
   createComment(postId: number | string, content: string) {
     return this.http.post(this.getUrl(postId), { content }, this.httpOptions);
   }
-  updateComment(post: PostCommentContent & PostCommentParentId & WithId) {
+  updateComment(post: PostCommentContent & WithPostId & WithId) {
     return this.http.put(this.getUrl(post.post_id) + post.id, post, this.httpOptions);
   }
   deleteComment(postId: number | string, commentId: number | string) {
