@@ -295,7 +295,7 @@ class User extends Authenticatable // implements MustVerifyEmail
             return $enhancedText;
         } else if($algorithm === 5) {
             // oneLiner
-            return $enhancedText = str_replace([".", "!", "?", "\n", "\t", "\r"], '', substr(strtolower($enhancedText), 1));
+            return $enhancedText = str_replace([".", "!", "?", "\n", "\t", "\r"], '', ucfirst(strtolower($enhancedText)));
         } else if($algorithm === 6) {
             // theElegantNetOfThePeople
             // replace the following patterns with a random result for each occurrence
@@ -336,6 +336,8 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = str_ireplace('el', 'l', $enhancedText);
             $enhancedText = str_ireplace('my', 'our', $enhancedText);
             $enhancedText = str_ireplace('community', 'comrades', $enhancedText);
+            $enhancedText = str_ireplace('suspicious', 'sus', $enhancedText);
+            $enhancedText = ini_set('sus', 'font-weight: italic');
             $enhancedText = preg_replace_callback(['~!~', '~?~', '~.~'], function () use ($exclaiming) {
                 $exclaimingIndex = rand(0, 5);
                 return $exclaiming[$exclaimingIndex];
@@ -436,9 +438,36 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = implode('', $enhancedChrs);
             return $enhancedText;
         } else if($algorithm === 9) {
-            // glyphLike (random sentence order and random word order with tabs for every new line or punctuation)
+            // glyphLike (appears as circled characters (similar to a copyright circle) and has random word order with tabs for every new line or punctuation)
         } else if($algorithm === 10) {
-            // glitchedInTransmission ()
+            // glitchedInTransmission (looks very messy with every third or fifth word missing a random half of its characters)
+        } else if($algorithm === 11) {
+            // coherent? (randomizes sentence order and punctuation)
+            $punctuation = [".", "...", "?", "!"];
+            $enhancedText = preg_replace_callback(['~!~', '~?~', '~.~'], function () use ($punctuation) {
+                $punctuationIndex = rand(0, 3);
+                return $punctuation[$punctuationIndex];
+            }, $enhancedText);
+            return $enhancedText;
+        } else if($algorithm === 12) {
+            // weHaveYodaSpeakAtHome
+            function verbsInTheEnd($sentence,$verbs) {
+                $wordArray = explode(' ',$sentence);
+                foreach($wordArray as $key => $word) {
+                    if(in_array($word,$verbs)) {
+                        unset($wordArray[$key]);
+                        $wordArray[] = $word;
+                    }
+                }
+                return implode(' ',$wordArray);
+            }
+            $verbs = array(
+                'are',
+                'were'
+            );
+            $sentence = 'you guys are great';
+            return $enhancedText = verbsInTheEnd($sentence,$verbs);
+            // Outputs "you guys great are"
         } else {
             throw new \Exception("Invalid text processing algorithm: $algorithm");
         }
