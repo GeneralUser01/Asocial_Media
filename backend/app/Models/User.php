@@ -175,8 +175,8 @@ class User extends Authenticatable // implements MustVerifyEmail
             return true;
         });
     }
-    /** A query for like info for an entry. Chain with `->first()` to get the info
-     * or `->exists()` to check for its existence. */
+    /** A query for like info for an entry. Chain with `->first()` to get the
+     * info or `->exists()` to check for its existence. */
     public function likeInfo(Entry $likeable)
     {
         // See:

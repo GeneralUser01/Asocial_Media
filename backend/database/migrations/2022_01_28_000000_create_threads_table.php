@@ -21,7 +21,8 @@ class CreateThreadsTable extends Migration
         Schema::create('entries', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+            // Foreign ids are added at the end of this migration after all the
+            // tables have been created.
         });
         // Track user actions (such as: creating posts or comments and liking or
         // disliking things).
@@ -78,8 +79,19 @@ class CreateThreadsTable extends Migration
         // `is_like` column was inspired by:
         // https://stackoverflow.com/questions/14202168/sql-database-structure-for-like-and-dislike
         //
-        // Likes can be represented in different ways (currently we are using
-        // the last option via the `entries` table):
+        // Likes can be represented in different ways...
+        //
+        // Here is some articles with pros and cons of the different methods:
+        //
+        // - https://stackoverflow.com/questions/922184/why-can-you-not-have-a-foreign-key-in-a-polymorphic-association
+        // - https://blog.siliconjungles.io/polymorphic-association-in-relational-database
+        //   - Recommends: Exclusive Arc
+        // - https://docs.gitlab.com/ee/development/polymorphic_associations.html
+        // - https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database
+        //   - Recommends: Exclusive Belongs To (AKA Exclusive Arc)
+        //
+        //
+        // Here is some thoughts and links about different methods:
         //
         // - Using `Polymorphic Relationships` where one table has ids that
         //   could for one of multiple other tables.
@@ -87,7 +99,7 @@ class CreateThreadsTable extends Migration
         //     https://laravel.com/docs/9.x/eloquent-relationships#many-to-many-polymorphic-relations
         //   - This is also the suggested solution by this blog post:
         //     https://dev.to/bdelespierre/how-to-implement-a-simple-like-system-with-laravel-lfe
-        //   - Con: the database cannot constrain the foreign keys since they
+        //   - CON: the database cannot constrain the foreign keys since they
         //     can be to multiple different tables. This makes it harder to
         //     ensure likeable things such as post and comments are not
         //     referenced after they have been deleted.
@@ -132,8 +144,10 @@ class CreateThreadsTable extends Migration
         //         2. Remove post
         //         3. Remove all likes that references this post.
         //         4. End transaction.
-        // - Using a separate table for each sub-type that then has the id of a
-        //   "super" table entry.
+        // - [Join Table Per Relationship Type] Using a separate table for each
+        //   sub-type that then has the id of a "super" table entry.
+        //   - Referred to as `Join Table Per Relationship Type` at:
+        //     https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database#join-table-per-relationship-type
         //   - So instead of one `likeable` table we would have `post_likes` and
         //     `comment_likes` as well as a `likes` table whose ids are
         //     referenced in the sub-tables.
@@ -157,7 +171,7 @@ class CreateThreadsTable extends Migration
         //     (`post_likes`) instead one should delete their entry in the
         //     super-table (`likes`) and rely on cascading deletes to remove the
         //     entries from the sub-tables.
-        //   - When removing a likeable thing (such as a post) then the
+        //   - CON: When removing a likeable thing (such as a post) then the
         //     sub-tables should have keys to that thing which enforces their
         //     validity and those keys SHOULD NOT be marked as "cascade on
         //     delete". This ensures that the post cannot be deleted while there
@@ -166,8 +180,8 @@ class CreateThreadsTable extends Migration
         //       `post_id` (enforce but don't cascade) column.
         //       - If all likes for a post is deleted then the sub-tables that
         //         have references to the post will all be deleted as well.
-        //     - We need to use locks to ensure that deleting a likeable thing
-        //       (post) does not fail because of a newly added like.
+        //     - CON: We need to use locks to ensure that deleting a likeable
+        //       thing (post) does not fail because of a newly added like.
         //       - For more info about how to use locks in Laravel see:
         //         https://laravel.com/docs/8.x/queries#pessimistic-locking
         //       - Taking a shared lock of the likeable thing (post) when adding
@@ -179,13 +193,40 @@ class CreateThreadsTable extends Migration
         //   - So each "like" table has a "user_id" and a "<entry>_id" where
         //     "<entry>" can be "post" or "comment" depending on what table we
         //     are defining.
+        //     - So in our case we would have both a `post_likes` and a
+        //       `post_comment_likes` table.
+        //     - If we wanted to list all actions a user has made we would have
+        //       a `post_user_actions`, a `post_comment_user_actions`, a
+        //       `post_like_user_action` and a `post_comment_like_user_action`.
+        //       - If it was possible to like one of those actions then we would
+        //         need a "like" table for each of those tables, so 4 extra
+        //         tables. But likes in those 4 tables would also be "user
+        //         actions" so we would need 4 more tables for that. But those
+        //         actions could also be liked and so we would need even more
+        //         "like" tables.
+        //         - CON: So some scenarios doesn't seem to possible to
+        //           represent using only "hardcoded" tables. This seems to
+        //           happen in situations where the foreign key might lead back
+        //           to the current table.
+        //           - So its fine to hardcode `likes` tables that have foreign
+        //             keys to `post` or `comment` but if we also needed a
+        //             foreign key for `likes` itself then that doesn't work.
+        //         - The problem in the above scenario is that you can
+        //           indirectly "like" a row of the `likes` table by liking the
+        //           user action representing that like.
         //   - If we want to access something similar to a `likes` table we can
-        //     just join all our different like tables together with a lot of
+        //     just join all our different "like" tables together with a lot of
         //     join statements.
-        //     - This has the drawback that it is hard (impossible?) to sort
-        //       based on different columns. So can't sort based on `created_at`
-        //       column for different tables.
+        //     - This has the drawback that it is hard to sort based on
+        //       different columns. So can't sort based on `created_at` column
+        //       for different tables.
         //       - So can't make a page listing all likes a user has made.
+        //       - It seems that this can be done using the `Union` operator,
+        //         more info at: https://www.w3schools.com/sql/sql_union.asp
+        //   - CON: This can require a lot of different tables which can require
+        //     a lot of code to handle. Joining all those tables can also become
+        //     quite complex, especially if you need to sort based on results
+        //     from multiple different tables.
         // - Have a "likeable" table in which a row is created whenever a
         //   likeable thing (such as a post) is created. When the likeable thing
         //   is removed then that row should also be removed.
@@ -198,14 +239,28 @@ class CreateThreadsTable extends Migration
         //       and Comment has a foreign key to its likeable row then the
         //       database will cascade the delete and also remove the Post or
         //       Comment.
+        //       - CON: This also requires that a "likeable" (such as a post or
+        //         comment) doesn't have any foreign keys that cascade on
+        //         delete, since those delete operations wouldn't delete the
+        //         "likable" table row that referred to the post or comment.
         //     - Another way is to just use transactions to remove both likeable
         //       things (such as posts or comments) and their "likeable" table
         //       row at the same time.
         //   - This should allow for creating likes and removing posts without
         //     using any locks or other tricks.
-        // - Instead of having a single id that could be a key in multiple
-        //   tables we could have a table which has many nullable foreign ids of
-        //   which only one isn't null.
+        //     - CON: Removing posts and comments might require locks however to
+        //       keep someone from adding a new like or comment to them while
+        //       they are being deleted.
+        // - [Exclusive Arc] Instead of having a single id that could be a key
+        //   in multiple tables we could have a table which has many nullable
+        //   foreign ids of which only one isn't null.
+        //   - PRO: Works just like a normal foreign id and you can have cascade
+        //     on delete without issues.
+        //   - CON: Has the drawback of requiring a bit more space. Table ids
+        //     should be pretty small however (compared to other things like
+        //     text) so it might not be too bad.
+        //   - Referred to as `Exclusive Arc` at:
+        //     - https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database#exclusive-belongs-to-aka-exclusive-arc-
         //   - This approach is suggested at:
         //     https://laracasts.com/discuss/channels/eloquent/polymorphism-why-should-i-violate-database-design?page=1&replyId=748370
         //
@@ -263,10 +318,11 @@ class CreateThreadsTable extends Migration
         //
         // Note: must do this after those tables have been created.
         Schema::table('entries', function (Blueprint $table) {
-            $table->foreignId('role_id')->nullable()->constrained('roles')->cascadeOnDelete();
-            $table->foreignId('post_id')->nullable()->constrained('posts')->cascadeOnDelete();
-            $table->foreignId('post_comment_id')->nullable()->constrained('post_comments')->cascadeOnDelete();
-            $table->foreignId('like_id')->nullable()->constrained('likes')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('role_id')->nullable()->unique()->constrained('roles')->cascadeOnDelete();
+            $table->foreignId('post_id')->nullable()->unique()->constrained('posts')->cascadeOnDelete();
+            $table->foreignId('post_comment_id')->nullable()->unique()->constrained('post_comments')->cascadeOnDelete();
+            $table->foreignId('like_id')->nullable()->unique()->constrained('likes')->cascadeOnDelete();
         });
 
         // Store some extra info in the User model. If the added columns don't

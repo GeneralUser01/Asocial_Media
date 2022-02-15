@@ -22,9 +22,12 @@ class UserResource extends JsonResource
             // Same info a user would see about themselves:
 
             // Make all roles with their names visible in the response:
-            $request->user()->load('roles');
+            // $request->user()->load('roles');
 
             $data = parent::toArray($request);
+
+            // Don't send roles info (name, created_at) instead send only their ids:
+            $data['roles'] = array_map(fn ($role) => $role['id'], $data['roles']);
         } else {
             // Show only some info to other users:
             $data = [
