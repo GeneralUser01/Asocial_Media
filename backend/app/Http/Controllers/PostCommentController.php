@@ -49,7 +49,7 @@ class PostCommentController extends Controller
             $user = $request->user();
 
             $comment = new PostComment($request->all());
-            $post->scrambled_content = $request->user()->scrambleText($post->content, null);
+            $comment->scrambled_content = $request->user()->scrambleText($comment->content, null);
             $comment->post_id = $post->id;
             $comment->user_id = $request->user()->id;
             $comment->save();

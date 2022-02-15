@@ -15,32 +15,28 @@ class PostResource extends JsonResource
      */
     public function toArray($request)
     {
-        /*
-        return [
+        $entry = $this->entry()->first();
+
+        $data = [
             'id' => $this->id,
+            'user_id' => $this->user_id,
             'title' => $this->title,
-            'body' => $this->body,
+            'body' => $this->id === $request->user()?->id ? $this->body : $this->scrambled_body,
+            'has_image' => $this->image_mime_type !== null && $this->image !== null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            // Add likes and dislikes:
+            'likes' => $this->when(Gate::forUser($request->user())->allows('viewLikes', $this->resource), function() use ($entry) {
+                return $entry === null ? 0 : $entry->likes()->where('is_like', '=', true)->count();
+            }),
+            'dislikes' => $this->when(Gate::forUser($request->user())->allows('viewDislikes', $this->resource), function() use ($entry) {
+                return $entry === null ? 0 : $entry->likes()->where('is_like', '=', false)->count();
+            }),
         ];
-        */
-        $data = parent::toArray($request);
 
         // Use the post's author to scramble the post's content (optionally customizing based on viewer):
         // $data['body'] = $this->user()->first()->scrambleText($data['body'], $request->user());
 
-        if ($this->id !== $request->user()?->id) {
-            $data['body'] = $this->scrambled_body;
-        }
-
-        // Add likes and dislikes:
-        $entry = $this->entry()->first();
-        if (Gate::forUser($request->user())->allows('viewLikes', $this->resource)) {
-            $data['likes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', true)->count();
-        }
-        if (Gate::forUser($request->user())->allows('viewDislikes', $this->resource)) {
-            $data['dislikes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', false)->count();
-        }
         if ($request->user() && $entry) {
             $like = $request->user()->likeInfo($entry)->first();
             $opinion = 'neutral';

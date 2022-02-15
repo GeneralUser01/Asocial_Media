@@ -15,16 +15,24 @@ class PostCommentResource extends JsonResource
      */
     public function toArray($request)
     {
-        $data = parent::toArray($request);
+        // $data = parent::toArray($request);
 
-        // Add likes and dislikes:
         $entry = $this->entry()->first();
-        if (Gate::forUser($request->user())->allows('viewLikes', $this->resource)) {
-            $data['likes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', true)->count();
-        }
-        if (Gate::forUser($request->user())->allows('viewDislikes', $this->resource)) {
-            $data['dislikes'] = $entry === null ? 0 : $entry->likes()->where('is_like', '=', false)->count();
-        }
+        $data = [
+            'id' => $this->id,
+            'post_id' => $this->post_id,
+            'user_id' => $this->user_id,
+            'content' => $this->id === $request->user()?->id ? $this->content : $this->scrambled_content,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            // Add likes and dislikes:
+            'likes' => $this->when(Gate::forUser($request->user())->allows('viewLikes', $this->resource), function() use ($entry) {
+                return $entry === null ? 0 : $entry->likes()->where('is_like', '=', true)->count();
+            }),
+            'dislikes' => $this->when(Gate::forUser($request->user())->allows('viewDislikes', $this->resource), function() use ($entry) {
+                return $entry === null ? 0 : $entry->likes()->where('is_like', '=', false)->count();
+            }),
+        ];
 
         if ($request->user() && $entry) {
             $like = $request->user()->likeInfo($entry)->first();

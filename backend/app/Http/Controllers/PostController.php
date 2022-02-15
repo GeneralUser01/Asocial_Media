@@ -82,6 +82,10 @@ class PostController extends Controller
     {
         $this->authorize('view', $post);
 
+        if ($post->image === null || $post->image_mime_type === null) {
+            abort(404);
+        }
+
         return response($post->image)->header('Content-Type', $post->image_mime_type);
     }
 

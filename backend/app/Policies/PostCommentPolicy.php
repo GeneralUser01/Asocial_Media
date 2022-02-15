@@ -186,9 +186,9 @@ class PostCommentPolicy
             return Response::deny("You are disabled and can't do anything");
         }
 
-        // We don't support deleting comments yet. That might change what page
-        // other comments are at.
-        return Response::deny("Deleting comments is currently not supported");
+        return $user->id === $comment->user_id
+        ? Response::allow()
+        : Response::deny('You do not own this comment.');
     }
 
     /**
