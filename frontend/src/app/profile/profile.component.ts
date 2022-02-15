@@ -5,7 +5,7 @@ import { CurrentUser, UserService } from '../_services/user.service';
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css', '../app.component.css'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.Emulated
 })
 export class ProfileComponent implements OnInit {
   currentUser: CurrentUser | null = null;
