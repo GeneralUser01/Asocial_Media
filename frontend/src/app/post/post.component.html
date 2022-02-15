@@ -12,7 +12,7 @@
             </div>
         </form>
 
-        <img [src]="image" class="hidden" onload="this.classList.remove('hidden')">
+        <img class="image-attachment" [src]="image" class="hidden" onload="this.classList.remove('hidden')">
 
         <h2>{{ post?.title }}</h2>
         <p>{{ post?.body }}</p>
@@ -33,8 +33,11 @@
         <ng-container *ngFor="let postComment of postComments">
             <div class="plain-row margin-above">
                 <!-- TODO: get the respective author's username from the users table connected by the user ids in the post comments table -->
-                <span class="margin-right-of">{{ postComment?.user_id }}</span>
-                <button class="margin-left-of {{ (isAdmin || postComment?.user_id === user?.id) ? '' : 'hidden' }}" (click)="deleteComment(postComment)">Delete</button>
+                <div class="plain-row">
+                    <img height="40" width="40" src="assets/default-profile-icon.png">
+                    <span class="margin-right-of">{{ postComment?.user_id }}</span>
+                </div>
+                <button class="margin-left-of margin-above {{ (isAdmin || postComment?.user_id === user?.id) ? '' : 'hidden' }}" (click)="deleteComment(postComment)">Delete</button>
             </div>
             <p>{{ postComment?.content }}</p>
             <div class="plain-row flex-content-to-the-right margin-below">
@@ -56,7 +59,7 @@
         </ng-template>
     </section>
 
-    <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+    <form class="{{ user ? '' : 'hidden' }}" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
         <textarea id="post-comment" type="text" class="form-control" name="content" [(ngModel)]="form.content" required
             maxlength="512" #content="ngModel" (input)="postCommentServerErrors.content = null"></textarea>
         <div class="alert-danger" *ngIf="(content.errors && f.submitted) || postCommentServerErrors.content">
@@ -79,3 +82,9 @@
         <button style="margin-top: 2vh;" id="btn-submit-post">Submit comment</button>
     </form>
 </ng-container>
+<!-- TODO: implement pagination in some reusability-friendly way and replace the placeholder loop below -->
+<div class="plain-row margin-above margin-below">
+    <a class="plain-row" *ngFor="let page of postComments" routerLink="?page={{ post?.id }}">
+        {{ page }}
+    </a>
+</div>

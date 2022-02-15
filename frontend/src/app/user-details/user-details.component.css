@@ -2,3 +2,18 @@ body {
     font-family: sans-serif, Helvetica, Arial;
     background-color: rgb(247, 247, 247);
 }
+
+.btn-size {
+    height: fit-content;
+}
+
+.plain-row {
+    display: flex;
+    flex-direction: row;
+}
+.margin-left-of {
+    margin-left: auto;
+}
+.margin-slightly-right-of {
+    margin-right: 1rem;
+}

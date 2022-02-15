@@ -32,7 +32,7 @@ h2, h4 {
     border-width: thin;
 }
 
-img {
+.image-attachment {
     object-fit: cover;
     height: 100%;
     width: 100%;
@@ -78,6 +78,10 @@ form button {
     border-color: rgba(138, 83, 26, 0.5);
     color: rgb(216, 97, 76);
     background-color: rgb(24, 26, 27);
+}
+
+button {
+    height: fit-content;
 }
 
 .hidden {

@@ -23,6 +23,8 @@ export class PostComponent implements OnInit {
   user: CurrentUser | null = null;
   isAdmin = false;
 
+  otherUser: User | null = null;
+
   postComments: PostComment[] = [];
 
   @ViewChild('content') textarea!: NgForm;
@@ -66,6 +68,9 @@ export class PostComponent implements OnInit {
           if (!user) return;
           this.isAdmin = this.roleService.userIsAdmin(user);
         });
+
+        // let currentPaginationNumber
+        this.userService.getUsers().subscribe();
 
         this.postService.getPost(id)
           // Use null in case of errors:
