@@ -1,5 +1,12 @@
 <h2>Posts</h2>
 <!-- <section id="thread-list"> -->
+<ng-container  *ngIf="posts.length === 0">
+    <h3 *ngIf="!isLoadingPosts; else loadingPosts">No posts.</h3>
+</ng-container>
+
+<ng-template #loadingPosts>
+    <h3>Loading Posts...</h3>
+</ng-template>
 <a *ngFor="let post of posts" routerLink="posts/{{ post.id }}">
     <div>
         {{ post.title }}

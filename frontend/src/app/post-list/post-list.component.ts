@@ -1,5 +1,6 @@
 import { Component, NgModule, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import { Post, PostService } from '../_services/post.service';
 
 // /**
@@ -18,10 +19,18 @@ import { Post, PostService } from '../_services/post.service';
 })
 export class PostListComponent implements OnInit {
   posts: Post[] = [];
+  isLoadingPosts = true;
 
   constructor(private postService: PostService, private router: Router) { }
 
   ngOnInit(): void {
-    this.postService.getPosts().subscribe(result => this.posts = result.data);
+    this.postService.getPosts()
+      .pipe(catchError((error) => of(null)))
+      .subscribe(result => {
+        this.isLoadingPosts = false;
+        if (this.posts && result) {
+          this.posts = result.data;
+        }
+      });
   }
 }
