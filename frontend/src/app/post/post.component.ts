@@ -8,7 +8,7 @@ import { RolesService, WithRolesInfo } from '../_services/roles.service';
 import { CurrentUser, User, UserService } from '../_services/user.service';
 
 interface WithUser {
-  user?: User | null,
+  user?: (User & Partial<WithRolesInfo>) | null,
 }
 interface WithIsLoadingUserError {
   userLoadingError?: null | string,
@@ -31,7 +31,7 @@ export class PostComponent implements OnInit {
 
 
   /** Info loaded about the post. */
-  post: null | (Post & WithUser & Partial<WithRolesInfo> & WithIsLoadingUserError) = null;
+  post: null | (Post & WithUser & WithIsLoadingUserError) = null;
   /** `true` if we are still loading `post`. */
   isLoadingPost = true;
 
@@ -40,7 +40,7 @@ export class PostComponent implements OnInit {
 
 
   /** Info about the comments made about the post. */
-  postComments: (PostComment & WithUser & Partial<WithRolesInfo> & WithIsLoadingUserError)[] = [];
+  postComments: (PostComment & WithUser & WithIsLoadingUserError)[] = [];
   /** `true` if we are still loading `postComments`. */
   isLoadingPostComments = true;
 
@@ -67,6 +67,7 @@ export class PostComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private roleService: RolesService,
     private userService: UserService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -78,8 +79,6 @@ export class PostComponent implements OnInit {
         this.isLoadingPost = false;
         this.isLoadingPostComments = false;
       } else {
-        this.isLoadingPost = true;
-        this.isLoadingPostComments = true;
 
         this.userService.getCurrentUser().subscribe(user => {
           this.currentUser = user;
@@ -87,44 +86,51 @@ export class PostComponent implements OnInit {
           this.roleService.getRolesInfo(user).subscribe();
         });
 
-        this.postService.getPost(id)
-          // Use null in case of errors:
-          .pipe(
-            catchError((error) => of(null)),
-            mergeMap((result) => {
-              this.post = result;
-              this.isLoadingPost = false;
-
-              // Queue up another observable:
-              if (this.post) {
-                return this.userService.getUser(this.post.user_id).pipe(
-                  tap(user => {
-                    if (!this.post) return;
-                    this.post.user = user;
-                  }),
-                  // Add roles info:
-                  mergeMap(user => this.roleService.getRolesInfo(user)),
-                  catchError(error => {
-                    if (this.post) {
-                      this.post.userLoadingError = error.error.message;
-                    }
-                    return throwError(() => error);
-                  })
-                );
-              } else {
-                return EMPTY;
-              }
-            }),
-          )
-          .subscribe();
-
         this.imageUrl = this.postService.postUrl + id + '/image';
 
+        this.isLoadingPost = true;
+        this.updatePost();
+
+
+        this.isLoadingPostComments = true;
         this.updateComments();
       }
     })
   }
 
+  updatePost() {
+    if (this.postId === null) return;
+    this.postService.getPost(this.postId)
+      // Use null in case of errors:
+      .pipe(
+        catchError((error) => of(null)),
+        mergeMap((result) => {
+          this.post = result;
+          this.isLoadingPost = false;
+
+          // Queue up another observable:
+          if (this.post) {
+            return this.userService.getUser(this.post.user_id).pipe(
+              tap(user => {
+                if (!this.post) return;
+                this.post.user = user;
+              }),
+              // Add roles info:
+              mergeMap(user => this.roleService.getRolesInfo(user)),
+              catchError(error => {
+                if (this.post) {
+                  this.post.userLoadingError = error.error.message;
+                }
+                return throwError(() => error);
+              })
+            );
+          } else {
+            return EMPTY;
+          }
+        }),
+      )
+      .subscribe();
+  }
   updateComments() {
     if (this.postId === null) {
       this.isLoadingPostComments = false;
@@ -197,6 +203,22 @@ export class PostComponent implements OnInit {
     this.commentService.deleteComment(comment.post_id, comment.id).subscribe(() => this.updateComments())
   }
 
+  likePost() {
+    if (!this.post) return;
+    if (this.post.opinion === 'liked') {
+      this.postService.unlikePost(this.post.id).subscribe(() => this.updatePost());
+    } else {
+      this.postService.likePost(this.post.id).subscribe(() => this.updatePost());
+    }
+  }
+  dislikePost() {
+    if (!this.post) return;
+    if (this.post.opinion === 'disliked') {
+      this.postService.unlikePost(this.post.id).subscribe(() => this.updatePost());
+    } else {
+      this.postService.dislikePost(this.post.id).subscribe(() => this.updatePost());
+    }
+  }
   deletePost(): void {
     // Forget previous errors:
     this.postDeletionErrorMessage = '';
@@ -208,6 +230,7 @@ export class PostComponent implements OnInit {
         console.log('Post deleted successfully: ', data);
         this.postDeletionIsSuccessful = true;
         this.isPostDeletionFailed = false;
+        //this.router.navigate(['/']);
       },
       error: (err) => {
         console.log('Post deletion failed: ', err);

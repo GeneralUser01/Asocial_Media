@@ -23,8 +23,18 @@
                 '[Error: ' + post.userLoadingError + ']' :
                 '[Loading Username...]') }}
             </a>
+            <span class="role" *ngFor="let role of post?.user?.roles_info">[{{role.name}}]</span>
         </h5>
         <p>{{ post?.body }}</p>
+        <div class="plain-row flex-content-to-the-right margin-below">
+            <div class="likes {{ post?.opinion === 'liked' ? 'active' : '' }}">
+                <button (click)="likePost()"><span>{{ post?.likes }}</span> Like</button>
+            </div>
+            <div class="dislikes {{ post?.opinion === 'disliked' ? 'active' : '' }}">
+                <button (click)="dislikePost()"><span>{{ post?.dislikes }}</span>
+                    Dislike</button>
+            </div>
+        </div>
     </ng-container>
 
     <ng-template #noPost>
@@ -40,7 +50,7 @@
     <h4>Comment Section</h4>
     <section>
         <ng-container *ngFor="let postComment of postComments">
-            <div class="plain-row flex-content-to-the-right margin-above ">
+            <div class="plain-row flex-content-to-the-left margin-above margin-right-of">
                 <div class="plain-row">
                     <img height="40" width="40" src="assets/default-profile-icon.png">
                     <a routerLink="/users/{{ postComment.user_id }}" class="margin-right-of">
@@ -50,6 +60,7 @@
                         '[Error: ' + postComment.userLoadingError + ']' :
                         '[Loading Username...]') }}
                     </a>
+                    <span class="role" *ngFor="let role of postComment?.user?.roles_info">[{{role.name}}]</span>
                 </div>
                 <button class="margin-left-of margin-above {{ (currentUser?.is_admin || postComment?.user_id === currentUser?.id) ? '' : 'hidden' }}" (click)="deleteComment(postComment)">Delete</button>
             </div>
@@ -59,7 +70,8 @@
                     <button (click)="likeComment(postComment)"><span>{{ postComment?.likes }}</span> Like</button>
                 </div>
                 <div class="dislikes {{ postComment?.opinion === 'disliked' ? 'active' : '' }}">
-                    <button (click)="dislikeComment(postComment)"><span>{{ postComment?.dislikes }}</span> Dislike</button>
+                    <button (click)="dislikeComment(postComment)"><span>{{ postComment?.dislikes }}</span>
+                        Dislike</button>
                 </div>
             </div>
         </ng-container>
@@ -96,9 +108,3 @@
         <button style="margin-top: 2vh;" id="btn-submit-post">Submit comment</button>
     </form>
 </ng-container>
-<!-- TODO: implement pagination in some reusability-friendly way and replace the placeholder loop below -->
-<div class="plain-row margin-above margin-below">
-    <a class="plain-row" *ngFor="let page of postComments" routerLink="?page={{ post?.id }}">
-        {{ page }}
-    </a>
-</div>
