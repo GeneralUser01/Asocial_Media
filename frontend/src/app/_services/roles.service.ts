@@ -1,15 +1,16 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { concatMap, last, map, mergeMap, Observable, of } from 'rxjs';
+import { concatMap, last, map, mergeMap, Observable, of, tap } from 'rxjs';
 import { Timestamps, WithId, Wrapped, WrappedCollection } from '../_shared/db-types';
 import { SimpleRxjsCache } from '../_shared/simple-rxjs-cache';
 import { AuthService } from './auth.service';
-import { User } from './user.service';
+import { User, UserService } from './user.service';
 
 
 export interface WithRolesInfo {
   roles_info: Role[],
   is_admin: boolean,
+  is_disabled: boolean,
 }
 
 export interface RoleContent {
@@ -19,6 +20,7 @@ export interface RoleContent {
 export type Role = RoleContent & WithId & Timestamps;
 
 export const ADMIN = 'Administrator';
+export const DISABLED = 'Disabled';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +35,7 @@ export class RolesService {
    * for a long time. */
   roleCache = new SimpleRxjsCache<string, Role>({ maxAge: /* 1h: */ 60 * 60 * 1000, maxEntries: 200 });
 
-  constructor(private http: HttpClient, private authService: AuthService) {
+  constructor(private http: HttpClient, private authService: AuthService, private userService: UserService) {
     authService.loginStateChanged$.subscribe(() => this.roleCache.clear());
   }
 
@@ -52,12 +54,18 @@ export class RolesService {
     return this.http.post(this.roleUrl, role, this.httpOptions);
   }
   updateRole(role: Partial<RoleContent> & WithId) {
-    this.roleCache.delete(String(role.id));
-    return this.http.put(this.roleUrl, role, this.httpOptions);
+    return this.http.put(this.roleUrl, role, this.httpOptions)
+      .pipe(tap(() => {
+        this.roleCache.delete(String(role.id));
+        this.userService.clearCache();
+      }));
   }
   deleteRole(roleId: number | string) {
-    this.roleCache.delete(String(roleId));
-    return this.http.delete(this.roleUrl + roleId, this.httpOptions);
+    return this.http.delete(this.roleUrl + roleId, this.httpOptions)
+      .pipe(tap(() => {
+        this.roleCache.delete(String(roleId));
+        this.userService.clearCache();
+      }));
   }
 
 
@@ -69,10 +77,12 @@ export class RolesService {
     return this.http.get<WrappedCollection<User[]>>(this.getRoleUserUrl(roleId) + '?page=' + page, this.httpOptions);
   }
   addRoleToUser(roleId: number | string, userId: number | string) {
-    return this.http.post(this.getRoleUserUrl(roleId), { user_id: userId }, this.httpOptions);
+    return this.http.post(this.getRoleUserUrl(roleId), { user_id: userId }, this.httpOptions)
+      .pipe(tap(() => this.userService.invalidateCache(userId)));
   }
   removeRoleFromUser(roleId: number | string, userId: number | string) {
-    return this.http.delete(this.getRoleUserUrl(roleId) + userId, this.httpOptions);
+    return this.http.delete(this.getRoleUserUrl(roleId) + userId, this.httpOptions)
+      .pipe(tap(() => this.userService.invalidateCache(userId)));
   }
 
   /** Gather roles information for a user. */
@@ -80,6 +90,7 @@ export class RolesService {
     if (!user.roles || user.roles.length === 0) {
       user.roles_info = [];
       user.is_admin = false;
+      user.is_disabled = false;
       return of(user as T & WithRolesInfo)
     };
 
@@ -99,16 +110,15 @@ export class RolesService {
         last(),
         // Store roles information in the user:
         map(() => {
-          let isAdmin = false;
           for (let i = 0; i < roles_info.length; i++) {
             const role = roles_info[i];
             if (role === null) throw new Error('failed to load info about role with id ' + roles[i] + ' for user with id ' + user.id);
-            if (role.name === ADMIN) {
-              isAdmin = true;
-            }
           }
-          user.is_admin = isAdmin;
-          user.roles_info = roles_info as Role[];
+          const roles_info_done = roles_info as Role[];
+
+          user.roles_info = roles_info_done;
+          user.is_admin = roles_info_done.some((role) => role.name === ADMIN);
+          user.is_disabled = roles_info_done.some((role) => role.name === DISABLED);
           return user as T & WithRolesInfo;
         }),
       );
@@ -116,6 +126,7 @@ export class RolesService {
       const roles = (user.roles as Role[]);
       user.roles_info = roles;
       user.is_admin = roles.some((role) => role.name === ADMIN);
+      user.is_disabled = roles.some((role) => role.name === DISABLED);
       return of(user as T & WithRolesInfo);
     }
   }

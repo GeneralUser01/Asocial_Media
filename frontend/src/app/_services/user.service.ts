@@ -47,10 +47,18 @@ export class UserService {
   userCache = new SimpleRxjsCache<string, User>({ maxAge: /* 1h: */ 60 * 60 * 1000, maxEntries: 200 });
 
   constructor(private http: HttpClient, private authService: AuthService) {
-    authService.loginStateChanged$.subscribe(() => {
-      this.currentUserCache.delete();
-      this.userCache.clear();
-    });
+    authService.loginStateChanged$.subscribe(() => this.clearCache());
+  }
+
+  clearCache() {
+    this.currentUserCache.delete();
+    this.userCache.clear();
+  }
+  invalidateCache(userId: string | number) {
+    this.userCache.delete(String(userId));
+
+    if (String(this.currentUserCache.get()?.id) !== String(userId)) return;
+    this.currentUserCache.delete();
   }
 
   /** Gets the current user if we are logged in or `null` if we aren't logged
@@ -88,11 +96,7 @@ export class UserService {
     return this.http.get<WrappedCollection<User[]>>(this.userUrl + '?page=' + page, this.httpOptions);
   }
   deleteUser(userId: number | string) {
-    // Invalidate caches:
-    this.userCache.delete(String(userId));
-    if (this.currentUserCache.get()?.id == userId) {
-      this.currentUserCache.delete();
-    }
+    this.invalidateCache(userId);
 
     return this.http.delete<Wrapped<User>>(this.userUrl + userId, this.httpOptions);
   }
