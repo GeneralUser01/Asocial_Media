@@ -108,7 +108,7 @@
       </form>
 
       <div class="alert alert-success" *ngIf="isLoggedIn">
-        Logged in as {{ roles }}.
+        Logged in as {{ currentUser?.name }}<span *ngFor="let role of currentUser?.roles_info"> [{{role.name}}]</span>.
       </div>
     </div>
   </div>

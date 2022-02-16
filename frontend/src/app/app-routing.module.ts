@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: 'user', component: ProfileComponent, },
   { path: 'posts/:postId', component: PostComponent, },
   { path: 'post-creation', component: PostCreationComponent, },
-  { path: 'users/:username', component: UserDetailsComponent, },
+  { path: 'users/:userId', component: UserDetailsComponent, },
   // This should be last:
   { path: '**', component: PageNotFoundComponent, },
 ];

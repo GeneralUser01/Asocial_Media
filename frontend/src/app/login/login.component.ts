@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
-import { UserService } from '../_services/user.service';
+import { RolesService, WithRolesInfo } from '../_services/roles.service';
+import { CurrentUser, UserService } from '../_services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -16,18 +17,19 @@ export class LoginComponent implements OnInit {
   isLoggedIn = false;
   isLoginFailed = false;
   errorMessage = '';
-  roles: string[] = [];
+  currentUser: (CurrentUser & Partial<WithRolesInfo>) | null = null;
   serverErrors = { username: null, password: null, remember: null, };
 
-  constructor(private authService: AuthService, private userService: UserService) { }
+  constructor(private authService: AuthService, private userService: UserService, private roleService: RolesService) { }
 
   ngOnInit(): void {
     this.userService.getCurrentUser().subscribe(user => {
+      this.currentUser = user;
       if (!user) return;
-
       this.isLoggedIn = true;
-      //this.roles = user.roles;
-    })
+
+      this.roleService.getRolesInfo(user).subscribe();
+    });
   }
 
   onSubmit(): void {
