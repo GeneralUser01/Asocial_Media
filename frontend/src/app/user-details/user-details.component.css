@@ -3,10 +3,6 @@ body {
     background-color: rgb(247, 247, 247);
 }
 
-.btn-size {
-    height: fit-content;
-}
-
 .plain-row {
     display: flex;
     flex-direction: row;
@@ -19,4 +15,106 @@ body {
 }
 .margin-slightly-right-of {
     margin-right: 1rem;
+}
+.margin-slightly-left-of {
+    margin-left: 1rem;
+}
+.margin-slightly-below {
+    margin-bottom: 1rem;
+}
+
+.hidden {
+    display: none;
+}
+
+.btn-size {
+    height: fit-content;
+    width: 100%;
+}
+
+button {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease-out;
+}
+#btn-disable {
+    color: rgb(232, 230, 227);
+    border-color: rgba(180, 196, 37, 0.5);
+    background-color: rgb(24, 26, 27);
+}
+#btn-admin {
+    color: rgb(232, 230, 227);
+    border-color: rgba(37, 196, 72, 0.5);
+    background-color: rgb(24, 26, 27);
+}
+#btn-delete {
+    color: rgb(232, 230, 227);
+    border-color: rgba(196, 37, 37, 0.5);
+    background-color: rgb(24, 26, 27);
+}
+
+button:after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: -1;
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+}
+#btn-disable:after {
+    background-image: linear-gradient(0deg, rgba(24, 26, 27, 0.13) 0%, rgba(132, 147, 0, 0.541) 100%);
+}
+#btn-admin:after {
+    background-image: linear-gradient(0deg, rgba(24, 26, 27, 0.13) 0%, rgba(0, 147, 12, 0.541) 100%);
+}
+#btn-delete:after {
+    background-image: linear-gradient(0deg, rgba(24, 26, 27, 0.13) 0%, rgba(147, 0, 44, 0.541) 100%);
+}
+
+button:before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+#btn-disable:before {
+    background-image: linear-gradient(180deg, rgba(24, 26, 27, 0.13) 0%, rgba(165, 202, 0, 0.541) 100%);
+}
+#btn-admin:before {
+    background-image: linear-gradient(180deg, rgba(24, 26, 27, 0.13) 0%, rgba(27, 231, 0, 0.541) 100%);
+}
+#btn-delete:before {
+    background-image: linear-gradient(180deg, rgba(24, 26, 27, 0.13) 0%, rgba(202, 0, 34, 0.541) 100%);
+}
+
+button:hover:before, button:focus::before {
+    opacity: 1;
+}
+button:hover:after, button:focus:after {
+    opacity: 0;
+}
+
+button:hover, button:focus {
+    color: rgb(255, 255, 255);
+    background-image: unset;
+    transition: opacity 0.3s ease-out;
+}
+
+#btn-disable:active {
+    background-image: linear-gradient(60deg, rgba(24, 26, 27, 0.13) 0%, rgba(0, 147, 12, 0.541) 100%);
+}
+#btn-admin:active {
+    background-image: linear-gradient(60deg, rgba(24, 26, 27, 0.13) 0%, rgba(0, 147, 12, 0.541) 100%);
+}
+#btn-delete:active {
+    background-image: linear-gradient(60deg, rgba(24, 26, 27, 0.13) 0%, rgba(0, 147, 12, 0.541) 100%);
 }

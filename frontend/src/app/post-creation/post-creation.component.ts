@@ -47,6 +47,40 @@ export class PostCreationComponent implements OnInit {
 
 
   onSubmit(): void {
+    // let canvas = document.getElementById('test');
+    // let ctx = canvas.getContext('2d');
+    // const img = document.getElementById('img');
+
+
+    // function loadImage(event) {
+    //     let reader = new FileReader();
+    //     reader.onload = () => {
+    //         let output = document.getElementById('img');
+    //         output.src = reader.result;
+    //         output.setAttribute("width", "200px")
+    //         output.setAttribute("height", "200px")
+    //         output.onload = function() {
+    //             ctx.drawImage(output, 0, 0, 200, 200);
+    //         }
+    //     }
+    //     reader.readAsDataURL(event.target.files[0]);
+    //     detect()
+    // }
+
+    // function detect() {
+    //     // Load model
+    //     cocoSsd.load().then(model => {
+    //         model.detect(img).then(predictions => {
+    //             console.log(predictions)
+    //             if(!predictions.length) {
+    //                 console.log("No predictions")
+    //             }else {
+    //                 ctx.fillStyle = 'rgba(255,255,255,1)'
+    //                 ctx.fillRect(predictions[0].bbox[0], predictions[0].bbox[1], predictions[0].bbox[2], predictions[0].bbox[3])
+    //             }
+    //         });
+    //     });
+    // }
     // Forget previous server errors:
     this.serverErrors = { title: null, body: null };
     this.errorMessage = '';

@@ -19,3 +19,8 @@ a:hover {
     text-decoration: none;
     color: rgb(0, 0, 255);
 }
+
+.plain-row {
+    display: flex;
+    flex-direction: row;
+}

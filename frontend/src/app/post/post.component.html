@@ -87,11 +87,11 @@
 
     <form class="{{ currentUser ? '' : 'hidden' }}" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
         <textarea id="post-comment" type="text" class="form-control" name="content" [(ngModel)]="form.content" required
-            maxlength="512" #content="ngModel" (input)="postCommentServerErrors.content = null"></textarea>
+            maxlength="255" #content="ngModel" (input)="postCommentServerErrors.content = null"></textarea>
         <div class="alert-danger" *ngIf="(content.errors && f.submitted) || postCommentServerErrors.content">
             <div *ngIf="content?.errors?.['required'] && isSubmitCommentFailed">Content is required</div>
             <div *ngIf="content?.errors?.['maxlength']">
-                Comment must be at most 512 characters
+                Comment must be at most 255 characters
             </div>
             <ng-container *ngIf="postCommentServerErrors.content">
                 <div *ngFor="let error of postCommentServerErrors.content;">{{ error }}</div>

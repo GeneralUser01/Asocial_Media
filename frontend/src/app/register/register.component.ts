@@ -36,7 +36,10 @@ export class RegisterComponent implements OnInit {
         console.log('Registered successfully: ', data);
         this.isSuccessful = true;
         this.isSignUpFailed = false;
-        window.location.reload();
+        setTimeout(reRoute, 700);
+        function reRoute() {
+          window.location.href="/login";
+        }
       },
       error: (err) => {
         console.log('Registered failed: ', err);

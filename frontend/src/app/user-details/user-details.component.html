@@ -13,13 +13,19 @@
         {{ user?.email }}
       </p>
       <!-- TODO: implement functions and restrictions in frontend for disabling and deleting users along with a "are you sure?" confirmation prompt for when deleting users -->
-      <button class="btn-size margin-left-of margin-slightly-right-of" (click)="toggleDisabled()">{{ user?.is_disabled ?
-        'Reactivate' : 'Disable' }} User {{ '"' + user?.name + '"' }}</button>
-      <button class="btn-size margin-left-of margin-slightly-right-of" (click)="toggleAdmin()">{{ user?.is_admin ?
-        'Remove admin rights from' : 'Give admin rights to' }} the user {{ '"' + user?.name + '"' }}</button>
-      <button class="btn-size" (click)="deleteUser()">Delete User {{ '"' + user?.name + '"' }}</button>
-      <button class="btn-size margin-above">Switch assigned text scrambler algorithm</button>
+      <div class="margin-slightly-left-of margin-slightly-below {{ (currentUser?.is_admin) ? '' : 'hidden' }}">
+        <button id="btn-disable" class="btn-size margin-left-of margin-slightly-right-of" (click)="toggleDisabled()">{{ user?.is_disabled ?
+          'Reactivate' : 'Disable' }} User {{ '"' + user?.name + '"' }}</button>
+        <button id="btn-admin" class="btn-size margin-left-of margin-slightly-right-of" (click)="toggleAdmin()">{{ user?.is_admin ?
+          'Remove admin rights from' : 'Give admin rights to' }} the user {{ '"' + user?.name + '"' }}</button>
+        <button id="btn-delete" class="btn-size" (click)="deleteUser()">Delete User {{ '"' + user?.name + '"' }}</button>
+        <button class="btn-size margin-above">Switch assigned text scrambler algorithm</button>
+      </div>
     </div>
+    <p>
+    <strong>Account created at:</strong>
+    {{ user?.created_at }}
+    </p>
     <strong>Roles:</strong>
     <ul>
       <ng-container *ngIf="user?.roles_info">

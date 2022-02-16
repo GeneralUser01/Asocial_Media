@@ -8,8 +8,9 @@
     <h3>Loading Posts...</h3>
 </ng-template>
 <a *ngFor="let post of posts" routerLink="posts/{{ post.id }}">
-    <div>
+    <div class="plain-row">
         {{ post.title }}
+        <!-- <span class="role" *ngFor="let role of post?.user?.roles_info">[{{role.name}}]</span> -->
     </div>
 </a>
 
