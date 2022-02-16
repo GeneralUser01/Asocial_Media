@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { EMPTY, mergeMap, tap } from 'rxjs';
+import { RolesService, WithRolesInfo } from '../_services/roles.service';
 import { CurrentUser, UserService } from '../_services/user.service';
 
 @Component({
@@ -8,14 +10,18 @@ import { CurrentUser, UserService } from '../_services/user.service';
   encapsulation: ViewEncapsulation.Emulated
 })
 export class ProfileComponent implements OnInit {
-  currentUser: CurrentUser | null = null;
+  currentUser: (CurrentUser & Partial<WithRolesInfo>) | null = null;
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private rolesService: RolesService) { }
 
   ngOnInit(): void {
-    this.userService.getCurrentUser().subscribe(user => {
-      this.currentUser = user;
-    });
+    this.userService.getCurrentUser().pipe(
+      tap(user => this.currentUser = user),
+      mergeMap(user => {
+        if (!user) return EMPTY;
+        return this.rolesService.getRolesInfo(user);
+      }),
+    ).subscribe();
   }
 
 }

@@ -28,7 +28,7 @@ export class PostListComponent implements OnInit {
       .pipe(catchError((error) => of(null)))
       .subscribe(result => {
         this.isLoadingPosts = false;
-        if (this.posts && result) {
+        if (result) {
           this.posts = result.data;
         }
       });

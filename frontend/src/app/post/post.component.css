@@ -18,13 +18,16 @@ section p {
     background-color: burlywood;
     transition: 0.3s;
 } */
-.likes.active button {
+.dislikes button,
+.likes button {
     transition: 0.3s;
-    background-color: blue;
+}
+.likes.active button {
+    background-color: rgba(0, 0, 255, 0.6);
     color: white;
 }
 .dislikes.active button {
-    background-color:red;
+    background-color:rgba(255, 0, 0, 0.6)
 }
 
 h2, h4 {

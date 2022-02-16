@@ -1,20 +1,29 @@
 <div class="alert alert-success" *ngIf="postDeletionIsSuccessful">
-    <!-- TODO: get author of deleted post to the deletion alert message -->
-    The post{{ post && post.title ? (' "' + post.title + '"' + (user && user.name ? ' by "' + user.name + '"' : '') ) : '' }} was successfully deleted!
+    The post{{ post && post.title ? (' "' + post.title + '"' + (post?.user?.name ? ' by "' + post.user?.name + '"' : '')
+    ) : '' }} was successfully deleted!
 </div>
 <ng-container *ngIf="!postDeletionIsSuccessful">
     <ng-container *ngIf="!!post; else noPost">
 
-        <form name="post-controls" class="{{ (isAdmin || post?.user_id === user?.id) ? '' : 'hidden' }}"
+        <form name="post-controls" class="{{ (currentUser?.is_admin || post?.user_id === currentUser?.id) ? '' : 'hidden' }}"
             (ngSubmit)="deletePost()"><button (click)="deletePost()">Delete post</button>
             <div class="alert alert-warning" *ngIf="f.submitted && isPostDeletionFailed">
                 Post deletion failed!<br />{{ postDeletionErrorMessage }}
             </div>
         </form>
 
-        <img class="image-attachment" [src]="image" class="hidden" onload="this.classList.remove('hidden')">
+        <img [src]="imageUrl" class="image-attachment hidden" onload="this.classList.remove('hidden')">
 
         <h2>{{ post?.title }}</h2>
+        <h5>
+            by <a routerLink="/users/{{post.user_id}}">
+                {{ post.user ?
+                (post?.user?.name) :
+                (post.userLoadingError ?
+                '[Error: ' + post.userLoadingError + ']' :
+                '[Loading Username...]') }}
+            </a>
+        </h5>
         <p>{{ post?.body }}</p>
     </ng-container>
 
@@ -31,13 +40,18 @@
     <h4>Comment Section</h4>
     <section>
         <ng-container *ngFor="let postComment of postComments">
-            <div class="plain-row margin-above">
-                <!-- TODO: get the respective author's username from the users table connected by the user ids in the post comments table -->
+            <div class="plain-row flex-content-to-the-right margin-above ">
                 <div class="plain-row">
                     <img height="40" width="40" src="assets/default-profile-icon.png">
-                    <span class="margin-right-of">{{ postComment?.user_id }}</span>
+                    <a routerLink="/users/{{ postComment.user_id }}" class="margin-right-of">
+                        {{ postComment.user ?
+                        (postComment?.user?.name) :
+                        (postComment.userLoadingError ?
+                        '[Error: ' + postComment.userLoadingError + ']' :
+                        '[Loading Username...]') }}
+                    </a>
                 </div>
-                <button class="margin-left-of margin-above {{ (isAdmin || postComment?.user_id === user?.id) ? '' : 'hidden' }}" (click)="deleteComment(postComment)">Delete</button>
+                <button class="margin-left-of margin-above {{ (currentUser?.is_admin || postComment?.user_id === currentUser?.id) ? '' : 'hidden' }}" (click)="deleteComment(postComment)">Delete</button>
             </div>
             <p>{{ postComment?.content }}</p>
             <div class="plain-row flex-content-to-the-right margin-below">
@@ -59,7 +73,7 @@
         </ng-template>
     </section>
 
-    <form class="{{ user ? '' : 'hidden' }}" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+    <form class="{{ currentUser ? '' : 'hidden' }}" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
         <textarea id="post-comment" type="text" class="form-control" name="content" [(ngModel)]="form.content" required
             maxlength="512" #content="ngModel" (input)="postCommentServerErrors.content = null"></textarea>
         <div class="alert-danger" *ngIf="(content.errors && f.submitted) || postCommentServerErrors.content">

@@ -7,11 +7,13 @@ import { UserDetailsComponent } from './user-details/user-details.component';
 import { PostListComponent } from './post-list/post-list.component';
 import { PostComponent } from './post/post.component';
 import { PostCreationComponent } from './post-creation/post-creation.component';
+import { ProfileComponent } from './profile/profile.component';
 
 const routes: Routes = [
   { path: '', component: PostListComponent, },
   { path: 'register', component: RegisterComponent, },
   { path: 'login', component: LoginComponent, },
+  { path: 'user', component: ProfileComponent, },
   { path: 'posts/:postId', component: PostComponent, },
   { path: 'post-creation', component: PostCreationComponent, },
   { path: 'users/:username', component: UserDetailsComponent, },
