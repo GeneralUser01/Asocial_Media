@@ -337,8 +337,8 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = str_ireplace('my', 'our', $enhancedText);
             $enhancedText = str_ireplace('community', 'comrades', $enhancedText);
             $enhancedText = str_ireplace('suspicious', 'sus', $enhancedText);
-            $enhancedText = ini_set('sus', 'font-weight: italic');
-            $enhancedText = preg_replace_callback(['~!~', '~?~', '~.~'], function () use ($exclaiming) {
+            // $enhancedText = ini_set('sus', 'font-weight: italic');
+            $enhancedText = preg_replace_callback(["/\!/", "/\?/", "/\./"], function () use ($exclaiming) {
                 $exclaimingIndex = rand(0, 5);
                 return $exclaiming[$exclaimingIndex];
             }, $enhancedText);
@@ -451,6 +451,23 @@ class User extends Authenticatable // implements MustVerifyEmail
             return $enhancedText;
         } else if($algorithm === 12) {
             // weHaveYodaSpeakAtHome
+            $enhancedText = str_ireplace("you're", "you are", $enhancedText);
+            $enhancedText = str_ireplace("you'll", "you will", $enhancedText);
+            $enhancedText = str_ireplace("you've", "you have", $enhancedText);
+            $enhancedText = str_ireplace("you'd", "you would", $enhancedText);
+            $enhancedText = str_ireplace("he's", "he is", $enhancedText);
+            $enhancedText = str_ireplace("he'll", "he will", $enhancedText);
+            $enhancedText = str_ireplace("he'd", "he would", $enhancedText);
+            $enhancedText = str_ireplace("she's", "she is", $enhancedText);
+            $enhancedText = str_ireplace("she'll", "she will", $enhancedText);
+            $enhancedText = str_ireplace("she'd", "she would", $enhancedText);
+            $enhancedText = str_ireplace("I'm", "I am", $enhancedText);
+            $enhancedText = str_ireplace("I'll", "I will", $enhancedText);
+            $enhancedText = str_ireplace("I've", "I have", $enhancedText);
+            $enhancedText = str_ireplace("I'd", "I would", $enhancedText);
+            $enhancedText = str_ireplace("i'ts", "it is", $enhancedText);
+            $enhancedText = str_ireplace("won't", "will not", $enhancedText);
+            $enhancedText = str_ireplace("wouldn't", "would not", $enhancedText);
             function verbsInTheEnd($sentence,$verbs) {
                 $wordArray = explode(' ',$sentence);
                 foreach($wordArray as $key => $word) {
@@ -461,10 +478,18 @@ class User extends Authenticatable // implements MustVerifyEmail
                 }
                 return implode(' ',$wordArray);
             }
-            $verbs = array(
+            $verbs = [
+                'is',
+                'am',
+                'be',
                 'are',
-                'were'
-            );
+                'were',
+                'was',
+                'wait',
+                'have',
+                'would',
+                'will'
+            ];
             $sentence = 'you guys are great';
             return $enhancedText = verbsInTheEnd($sentence,$verbs);
             // Outputs "you guys great are"
