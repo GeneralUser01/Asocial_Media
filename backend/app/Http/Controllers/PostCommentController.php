@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PostCommentController extends Controller
 {
@@ -50,6 +51,7 @@ class PostCommentController extends Controller
             $user = $request->user();
 
             $comment = new PostComment($request->all());
+            Str::limit($comment->content, 255);
             $comment->scrambled_content = $request->user()->scrambleText($comment->content, null);
             $comment->post_id = $post->id;
             $comment->user_id = $request->user()->id;

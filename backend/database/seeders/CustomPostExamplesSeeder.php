@@ -20,8 +20,16 @@ class CustomPostExamplesSeeder extends Seeder
         $examples = [
             [
                 'post' => [
-                    'title' => 'Whatever!',
-                    'body' => 'Something',
+                    'title' => 'Pling plong!',
+                    'body' => "*Thread starts
+Well admin, I made it, despite your routes.
+Ah, welcome. I hope you're ready for an unforgettable forum!
+Yeah..
+
+*gasp* Dear god, my roast is ruined! But what if, I were to scramble text and disguise it as what was really written
+from a certain point of view? Hohoho, delightfully develish admin.
+*Prominently shows text no one could have written so badly
+Eh!- -_-",
                     'likes' => 3,
                     'dislikes' => 5,
                     // 'content_scrambler_algorithm' => 5,

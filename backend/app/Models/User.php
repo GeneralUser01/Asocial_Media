@@ -312,7 +312,7 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = str_ireplace('and', "&", $enhancedText);
             $enhancedText = str_ireplace(['be', 'bee'], 'b', $enhancedText);
             $enhancedText = str_ireplace(['okay', 'ok'], 'k', $enhancedText);
-            $enhancedText = str_ireplace('one', '1', $enhancedText);
+            $enhancedText = str_ireplace(['one', 'won'], '1', $enhancedText);
             $enhancedText = str_ireplace(['free', 'three', 'tree'], '3', $enhancedText);
             $enhancedText = str_ireplace(['to', 'too', 'two'], '2', $enhancedText);
             $enhancedText = str_ireplace('for', '4', $enhancedText);
@@ -332,8 +332,10 @@ class User extends Authenticatable // implements MustVerifyEmail
             $enhancedText = str_ireplace('see', 'c', $enhancedText);
             $enhancedText = str_ireplace(',', ', ತಎತ,', $enhancedText);
             $enhancedText = str_ireplace('w', 'vv', $enhancedText);
-            $enhancedText = str_ireplace('en', 'n', $enhancedText);
+            $enhancedText = str_ireplace(['en', 'an'], 'n', $enhancedText);
             $enhancedText = str_ireplace('el', 'l', $enhancedText);
+            $enhancedText = str_ireplace('ex', 'x', $enhancedText);
+            $enhancedText = str_ireplace('s', 'z', $enhancedText);
             $enhancedText = str_ireplace('my', 'our', $enhancedText);
             $enhancedText = str_ireplace('community', 'comrades', $enhancedText);
             $enhancedText = str_ireplace('suspicious', 'sus', $enhancedText);
