@@ -21,7 +21,7 @@ class PostResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'title' => $this->title,
-            'body' => $this->id === $request->user()?->id ? $this->body : $this->scrambled_body,
+            'body' => $this->user_id === $request->user()?->id ? $this->body : $this->scrambled_body,
             'has_image' => $this->image_mime_type !== null && $this->image !== null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
