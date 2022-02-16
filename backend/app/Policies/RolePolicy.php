@@ -18,7 +18,7 @@ class RolePolicy
      */
     public function showUserRoles(?User $user, Role $role)
     {
-        if ($user->isAdministrator()) {
+        if ($user?->isAdministrator()) {
             return Response::allow();
         }
 
@@ -33,7 +33,7 @@ class RolePolicy
     /** Add a new role to a user. */
     public function addUserRole(User $user, Role $role, User $affectedUser)
     {
-        if ($user->isAdministrator()) {
+        if ($user?->isAdministrator()) {
             return Response::allow();
         }
 
@@ -47,7 +47,7 @@ class RolePolicy
     /** Remove a role from a user. */
     public function removeUserRole(User $user, Role $role, User $affectedUser)
     {
-        if ($user->isAdministrator()) {
+        if ($user?->isAdministrator()) {
             return Response::allow();
         }
 
@@ -93,7 +93,7 @@ class RolePolicy
      */
     public function create(User $user)
     {
-        if ($user->isAdministrator()) {
+        if ($user?->isAdministrator()) {
             return Response::allow();
         }
 
@@ -110,7 +110,7 @@ class RolePolicy
      */
     public function update(User $user, Role $role)
     {
-        if ($user->isAdministrator()) {
+        if ($user?->isAdministrator()) {
             if ($role->isHardcoded()) {
                 Response::deny("You can't change a hardcoded role.");
             }
@@ -130,7 +130,7 @@ class RolePolicy
      */
     public function delete(User $user, Role $role)
     {
-        if ($user->isAdministrator()) {
+        if ($user?->isAdministrator()) {
             if ($role->isHardcoded()) {
                 Response::deny("You can't delete a hardcoded role.");
             }
