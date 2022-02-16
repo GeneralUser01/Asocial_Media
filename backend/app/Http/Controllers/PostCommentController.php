@@ -32,7 +32,8 @@ class PostCommentController extends Controller
     {
         $this->authorize('viewAny', [PostComment::class, $post]);
 
-        return PostCommentResource::collection($post->comments()->paginate());
+        // TODO: lower comments per page when we improve the frontend.
+        return PostCommentResource::collection($post->comments()->orderBy('created_at', 'asc')->paginate(1000));
     }
 
     /**

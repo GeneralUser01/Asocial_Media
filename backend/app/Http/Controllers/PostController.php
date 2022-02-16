@@ -33,7 +33,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        return PostResource::collection(Post::orderBy('created_at', 'desc')->paginate());
+        // TODO: lower posts per page when we improve the frontend.
+        return PostResource::collection(Post::orderBy('created_at', 'desc')->paginate(1000));
     }
 
     /**
