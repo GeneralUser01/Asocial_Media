@@ -1,34 +1,44 @@
-<div class="container" *ngIf="currentUser; else loggedOut">
-  <header class="jumbotron">
-    <h3>
-      <strong>{{ currentUser.name }}</strong> Profile
-      <img src="assets/default-profile-icon.png" height="70" width="70" style="margin-left: auto;">
-    </h3>
-  </header>
-  <div class="plain-row">
-    <p>
-        <strong>Email:</strong>
-        {{ currentUser.email }}
-    </p>
-    <!-- TODO: implement functions and restrictions in frontend for disabling and deleting users along with a "are you sure?" confirmation prompt for when deleting users -->
-    <button class="btn-size margin-left-of margin-slightly-right-of">Disable User {{ '"' + currentUser.name + '"' }}</button>
-    <button class="btn-size">Delete User {{ '"' + currentUser.name + '"' }}</button>
-  </div>
-  <strong>Roles:</strong>
-  <ul>
-    <li>
-      {{ currentUser.roles }}
-    </li>
-  </ul>
-</div>
+<ng-container *ngIf="currentUser; else loggedOut">
 
-  <ng-template #loggedOut>
-    Please login.
-  </ng-template>
-<hr>
-<h4>Posts:</h4>
-<hr>
-<h4></h4>
+  <div class="container">
+    <header class="jumbotron">
+      <h3>
+        <strong>{{ user?.name }}</strong> Profile
+        <img src="assets/default-profile-icon.png" height="70" width="70" style="margin-left: auto;">
+      </h3>
+    </header>
+    <div class="plain-row">
+      <p>
+        <strong>Email:</strong>
+        {{ user?.email }}
+      </p>
+      <!-- TODO: implement functions and restrictions in frontend for disabling and deleting users along with a "are you sure?" confirmation prompt for when deleting users -->
+      <button class="btn-size margin-left-of margin-slightly-right-of" (click)="toggleDisabled()">{{ user?.is_disabled ?
+        'Reactivate' : 'Disable' }} User {{ '"' + user?.name + '"' }}</button>
+      <button class="btn-size margin-left-of margin-slightly-right-of" (click)="toggleAdmin()">{{ user?.is_admin ?
+        'Remove admin rights from' : 'Give admin rights to' }} the user {{ '"' + user?.name + '"' }}</button>
+      <button class="btn-size" (click)="deleteUser()">Delete User {{ '"' + user?.name + '"' }}</button>
+      <button class="btn-size margin-above">Switch assigned text scrambler algorithm</button>
+    </div>
+    <strong>Roles:</strong>
+    <ul>
+      <ng-container *ngIf="user?.roles_info">
+        <li *ngFor="let role of user?.roles_info">
+          {{ role.name }}
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+
+  <hr>
+  <h4>Posts:</h4>
+  <hr>
+  <h4></h4>
+</ng-container>
+
+<ng-template #loggedOut>
+  <h1>Please <a routerLink="/login">login</a>!</h1>
+</ng-template>
 
 <!-- <a *ngFor="let userPost of userPosts" routerLink="posts/{{ userPost.id }}">
     <div>

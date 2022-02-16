@@ -11,6 +11,9 @@ body {
     display: flex;
     flex-direction: row;
 }
+.margin-above {
+    margin-top: auto;
+}
 .margin-left-of {
     margin-left: auto;
 }
