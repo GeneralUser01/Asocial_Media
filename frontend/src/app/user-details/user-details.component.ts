@@ -4,6 +4,10 @@ import { EMPTY, mergeMap, tap } from 'rxjs';
 import { RolesService, WithRolesInfo } from '../_services/roles.service';
 import { CurrentUser, User, UserService } from '../_services/user.service';
 
+interface WithFormattedTime {
+  created_at_formatted?: string,
+}
+
 @Component({
   selector: 'app-user-details',
   templateUrl: './user-details.component.html',
@@ -12,7 +16,7 @@ import { CurrentUser, User, UserService } from '../_services/user.service';
 export class UserDetailsComponent implements OnInit {
   currentUser: (CurrentUser & Partial<WithRolesInfo>) | null = null;
 
-  user: (User & Partial<WithRolesInfo>) | null = null;
+  user: (User & Partial<WithRolesInfo> & WithFormattedTime) | null = null;
   userId: null | string = null;
 
   constructor(
@@ -42,7 +46,13 @@ export class UserDetailsComponent implements OnInit {
   updateUser() {
     if (this.userId === null) return;
     this.userService.getUser(this.userId).pipe(
-      tap(user => this.user = user),
+      tap(user => {
+        this.user = user;
+        if (user.created_at) {
+          const time = new Date(user.created_at);
+          this.user.created_at_formatted = time.toLocaleDateString();
+        }
+      }),
       mergeMap(user => {
         if (!user) return EMPTY;
         return this.rolesService.getRolesInfo(user);

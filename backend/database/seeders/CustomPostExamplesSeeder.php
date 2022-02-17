@@ -27,7 +27,7 @@ Ah, welcome. I hope you're ready for an unforgettable forum!
 Yeah..
 
 *gasp* Dear god, my roast is ruined! But what if, I were to scramble text and disguise it as what was really written
-from a certain point of view? Hohoho, delightfully develish admin.
+from a certain point of view? Hohoho, delightfully devilish admin.
 *Prominently shows text no one could have written so badly
 Eh!- -_-",
                     'likes' => 3,

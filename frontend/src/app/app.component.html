@@ -12,9 +12,6 @@
         <a class="nav-link" routerLink="mod">Moderator Board</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" *ngIf="isLoggedIn" routerLink="user">User</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" *ngIf="isLoggedIn" routerLink="post-creation">Create post</a>
       </li>
     </ul>
@@ -33,7 +30,10 @@
         <a class="nav-link" routerLink="profile">{{ username }}</a>
       </li>
       <li class="nav-item">
-        <a routerLink="" queryParamsHandling="preserve" class="nav-link" (click)="logout()">LogOut</a>
+        <a class="nav-link" *ngIf="isLoggedIn" routerLink="user">User</a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="" queryParamsHandling="preserve" class="nav-link" (click)="logout()">Log Out</a>
       </li>
     </ul>
   </nav>

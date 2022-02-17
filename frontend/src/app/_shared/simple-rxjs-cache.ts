@@ -20,16 +20,18 @@ export class SimpleRxjsCache<K, V> extends SimpleCache<K, V>  {
 
   override delete(key: K): void {
     super.delete(key);
-    this.inProgress.delete(key);
+    this.inProgress.get(key)?.invalidate();
   }
   override clear(): void {
     super.clear();
-    this.inProgress.clear();
+    // Invalidate all ongoing operations and don't cache their results:
+    this.inProgress.forEach(queue => queue.invalidate());
   }
 
   override removedInternally(key: K): void {
     super.removedInternally(key);
-    this.inProgress.delete(key);
+    // The key hasn't been invalidated, just evicted from the cache. So we can
+    // still cache the results from ongoing operations.
   }
 
   /** This handles all your caching needs. */

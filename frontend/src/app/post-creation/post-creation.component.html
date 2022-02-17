@@ -3,77 +3,67 @@
 
 <h2>Post creation</h2>
 
-<div class="plain-row">
-  <label for="post-title">Title:</label>
-  <div style="margin-left: auto;" class="plain-row">
-      <label>Image attachment: </label>
-      <input
-      type="file"
-      name="image"
-      (change)="fileSelect($event)"
-      #image>
-      <div class="plain-row">
-        <button id="btn-browse-images" (click)="image.click()">Browse</button>
-        <!-- <span *ngIf="fileName">{{ fileName }}</span> -->
+<ng-container *ngIf="currentUser; else loggedOut">
+  <ng-container *ngIf="!isSuccessful; else success">
+    <canvas class="{{ currentUser?.is_admin ? '' : 'hidden' }}" id="ai-canvas"></canvas>
+    <ng-container *ngIf="currentUser?.is_admin">
+      <hr>
+      <button (click)="processImage()" class="btn btn-success">Re-generate image</button>
+      <hr>
+    </ng-container>
+    <img *ngIf="previewImageUrl !== null" [src]="previewImageUrl" id="uploaded-image">
+
+    <div class="plain-row">
+      <label for="post-title">Title:</label>
+      <div style="margin-left: auto;">
+        <label class="attachmentLabel">Image attachment: </label>
+        <input type="file" name="image" (change)="fileSelect($event)" #image>
+        <span class="fileLabel" *ngIf="selectedFile !== null">{{ selectedFile.name }}</span>
+        <button class="btn btn-success" id="btn-browse-images" (click)="image.click()">Browse</button>
       </div>
-  </div>
-</div>
-<form
-*ngIf="!isSuccessful"
-name="form"
-(ngSubmit)="f.form.valid && onSubmit()"
-#f="ngForm"
-novalidate
->
-  <input
-  id="post-title"
-  type="text"
-  class="form-control"
-  name="title"
-  [(ngModel)]="form.title"
-  required
-  maxlength="100"
-  #title="ngModel"
-  (input)="serverErrors.title = null">
-  <div class="alert-danger" *ngIf="(title.errors && f.submitted) || serverErrors.title">
-    <div *ngIf="title?.errors?.['required']">title is required</div>
-    <div *ngIf="title?.errors?.['maxlength']">
-      title must be at most 100 characters
     </div>
-    <ng-container *ngIf="serverErrors.title">
-      <div *ngFor="let error of serverErrors.title;">{{ error }}</div>
-    </ng-container>
-  </div>
+    <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+      <input id="post-title" type="text" class="form-control" name="title" [(ngModel)]="form.title" required
+        maxlength="100" #title="ngModel" (input)="serverErrors.title = null">
+      <div class="alert-danger" *ngIf="(title.errors && f.submitted) || serverErrors.title">
+        <div *ngIf="title?.errors?.['required']">title is required</div>
+        <div *ngIf="title?.errors?.['maxlength']">
+          title must be at most 100 characters
+        </div>
+        <ng-container *ngIf="serverErrors.title">
+          <div *ngFor="let error of serverErrors.title;">{{ error }}</div>
+        </ng-container>
+      </div>
 
-  <div style="margin-top: 2vh;" class="plain-row">
-      <label for="post-body">Content:</label>
-  </div>
-  <textarea
-  id="post-body"
-  type="text"
-  class="form-control"
-  name="body"
-  [(ngModel)]="form.body"
-  required
-  maxlength="512"
-  #body="ngModel"
-  (input)="serverErrors.body = null"></textarea>
-  <div class="alert-danger" *ngIf="(body.errors && f.submitted) || serverErrors.body">
-    <div *ngIf="body?.errors?.['required']">Content is required</div>
-    <div *ngIf="body?.errors?.['maxlength']">
-      Content must be at most 512 characters
-    </div>
-    <ng-container *ngIf="serverErrors.body">
-      <div *ngFor="let error of serverErrors.body;">{{ error }}</div>
-    </ng-container>
-  </div>
+      <div style="margin-top: 2vh;" class="plain-row">
+        <label for="post-body">Content:</label>
+      </div>
+      <textarea id="post-body" type="text" class="form-control" name="body" [(ngModel)]="form.body" required
+        maxlength="512" #body="ngModel" (input)="serverErrors.body = null"></textarea>
+      <div class="alert-danger" *ngIf="(body.errors && f.submitted) || serverErrors.body">
+        <div *ngIf="body?.errors?.['required']">Content is required</div>
+        <div *ngIf="body?.errors?.['maxlength']">
+          Content must be at most 512 characters
+        </div>
+        <ng-container *ngIf="serverErrors.body">
+          <div *ngFor="let error of serverErrors.body;">{{ error }}</div>
+        </ng-container>
+      </div>
 
-  <button style="margin-top: 2vh;" id="btn-submit-post">Submit post</button>
-  <div class="alert alert-warning" *ngIf="f.submitted && isSubmitPostFailed">
-      Post upload failed!<br />{{ errorMessage }}
-  </div>
-</form>
+      <button style="margin-top: 2vh;" id="btn-submit-post">Submit post</button>
+      <div class="alert alert-warning" *ngIf="f.submitted && isSubmitPostFailed">
+        Post upload failed!<br />{{ errorMessage }}
+      </div>
+    </form>
+  </ng-container>
+</ng-container>
 
-<div class="alert alert-success" *ngIf="isSuccessful">
+<ng-template #success>
+  <div class="alert alert-success">
     Your post upload is successful!
-</div>
+  </div>
+</ng-template>
+
+<ng-template #loggedOut>
+  <h1>Please <a routerLink="/login">login</a>!</h1>
+</ng-template>

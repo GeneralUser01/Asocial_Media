@@ -47,7 +47,9 @@ export class RolesService {
       );
   }
   getRoles(page = 1) {
-    return this.http.get<WrappedCollection<Role[]>>(this.roleUrl + '?page=' + page, this.httpOptions);
+    return this.http.get<WrappedCollection<Role[]>>(this.roleUrl + '?page=' + page, this.httpOptions)
+      // Store the retrieved roles in our cache:
+      .pipe(tap(roles => roles.data.forEach(role => this.roleCache.put(String(role.id), role))));
   }
 
   createRole(role: RoleContent) {
@@ -87,47 +89,45 @@ export class RolesService {
 
   /** Gather roles information for a user. */
   getRolesInfo<T extends User & Partial<WithRolesInfo>>(user: T): Observable<T & WithRolesInfo> {
+    // Store roles information in the user:
+    const finish = (roles_info: Role[]): T & WithRolesInfo => {
+      user.roles_info = roles_info;
+      user.is_admin = roles_info.some((role) => role.name === ADMIN);
+      user.is_disabled = roles_info.some((role) => role.name === DISABLED);
+      return user as T & WithRolesInfo;
+    }
+
     if (!user.roles || user.roles.length === 0) {
-      user.roles_info = [];
-      user.is_admin = false;
-      user.is_disabled = false;
-      return of(user as T & WithRolesInfo)
+      // No roles:
+      return of(finish([]));
     };
 
-    if (typeof user.roles[0] === 'number') {
-      const roles = user.roles as number[];
-      const roles_info: (null | Role)[] = roles.map(() => null);
-      return of(null).pipe(
-        // Make one event per role:
-        concatMap(() => roles),
-        // Get info for each role:
-        mergeMap((roleId, index) => {
-          return this.getRole(roleId).pipe(map(role => {
-            roles_info[index] = role;
-          }));
-        }),
-        // Wait for all:
-        last(),
-        // Store roles information in the user:
-        map(() => {
-          for (let i = 0; i < roles_info.length; i++) {
-            const role = roles_info[i];
-            if (role === null) throw new Error('failed to load info about role with id ' + roles[i] + ' for user with id ' + user.id);
-          }
-          const roles_info_done = roles_info as Role[];
-
-          user.roles_info = roles_info_done;
-          user.is_admin = roles_info_done.some((role) => role.name === ADMIN);
-          user.is_disabled = roles_info_done.some((role) => role.name === DISABLED);
-          return user as T & WithRolesInfo;
-        }),
-      );
-    } else {
-      const roles = (user.roles as Role[]);
-      user.roles_info = roles;
-      user.is_admin = roles.some((role) => role.name === ADMIN);
-      user.is_disabled = roles.some((role) => role.name === DISABLED);
-      return of(user as T & WithRolesInfo);
+    if (typeof user.roles[0] !== 'number') {
+      // Roles are provided as objects with information already loaded:
+      return of(finish(user.roles as Role[]));
     }
+
+    // Roles are role ids:
+    const roles = user.roles as number[];
+    const roles_info: (null | Role)[] = roles.map(() => null);
+    return of(null).pipe(
+      // Make one event per role:
+      concatMap(() => roles),
+      // Get info for each role:
+      mergeMap((roleId, index) => {
+        return this.getRole(roleId).pipe(map(role => {
+          roles_info[index] = role;
+        }));
+      }),
+      // Wait for all:
+      last(),
+      map(() => {
+        for (let i = 0; i < roles_info.length; i++) {
+          const role = roles_info[i];
+          if (role === null) throw new Error('failed to load info about role with id ' + roles[i] + ' for user with id ' + user.id);
+        }
+        return finish(roles_info as Role[]);
+      }),
+    );
   }
 }

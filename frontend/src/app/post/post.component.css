@@ -14,13 +14,28 @@ section p {
     margin-bottom: 0;
 }
 
-/* .likes button {
-    background-color: burlywood;
-    transition: 0.3s;
-} */
+.likes, .dislikes {
+    border: none;
+    border-style: solid;
+    border-top-style: none;
+    border-width: thin;
+    background: rgb(235, 235, 235);
+    /* min-width: 5rem; */
+}
 .dislikes button,
 .likes button {
     transition: 0.3s;
+    background: none;
+    border: none;
+}
+.hover-like-icon, .submitted-like-icon, .hover-dislike-icon, .submitted-dislike-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+.likes .default-like-icon:hover {
+    opacity: 1;
 }
 .likes.active button {
     background-color: rgba(0, 0, 255, 0.6);
@@ -28,6 +43,17 @@ section p {
 }
 .dislikes.active button {
     background-color:rgba(255, 0, 0, 0.6)
+}
+
+.likes > span, .dislikes > span {
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+}
+.likes > button {
+    margin-right: 0.2rem;
+}
+.dislikes > button > img {
+    transform: rotate(180deg);
 }
 
 h2, h4 {
@@ -73,7 +99,7 @@ form button {
 }
 
 .btn-edit {
-    background-image: linear-gradient(-180deg, rgba(24, 26, 27, 0.09) 0%, rgba(151, 0, 0, 0.1) 97%);
+    background-image: linear-gradient(-70deg, rgba(24, 26, 27, 0.09) 0%, rgba(151, 0, 0, 0.1) 97%);
     border-color: rgba(26, 46, 138, 0.5);
     color: rgb(76, 97, 216);
     /* color: #648aa4 */

@@ -104,6 +104,9 @@ export class SimpleCache<K, V> {
     // Recreate the map without the removed entries:
     this.cache = new Map(entries);
   }
+  /** Called when an item is removed because of internal cleanup. The entry
+   * might still be present in the cache for a little while after this method
+   * has been called. */
   protected removedInternally(key: K) { }
 
   /** Preform some cleanup. This will delete all entries that are too old.
@@ -119,7 +122,8 @@ export class SimpleCache<K, V> {
 
     this.cache.forEach((entry, key) => {
       if (entry.lastRead < expired) {
-        this.delete(key);
+        this.cache.delete(key);
+        this.removedInternally(key);
       } else if (trackOldest) {
         if (!oldest || (entry.lastRead < oldest.lastRead)) {
           oldest = entry;
@@ -128,7 +132,8 @@ export class SimpleCache<K, V> {
       }
     });
     if (trackOldest && this.hasTooMany() && oldestKey !== null) {
-      this.delete(oldestKey);
+      this.cache.delete(oldestKey);
+      this.removedInternally(oldestKey);
     }
   }
 
