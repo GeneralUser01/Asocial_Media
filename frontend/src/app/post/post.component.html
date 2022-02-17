@@ -6,7 +6,7 @@
     <ng-container *ngIf="!!post; else noPost">
 
         <form name="post-controls" class="{{ (currentUser?.is_admin || post?.user_id === currentUser?.id) ? '' : 'hidden' }}"
-            (ngSubmit)="deletePost()"><button (click)="deletePost()">Delete post</button>
+            (ngSubmit)="deletePost()"><button class="btn btn-delete" (click)="deletePost()">Delete post</button>
             <div class="alert alert-warning" *ngIf="f.submitted && isPostDeletionFailed">
                 Post deletion failed!<br />{{ postDeletionErrorMessage }}
             </div>
@@ -26,13 +26,13 @@
             <span class="role" *ngFor="let role of post?.user?.roles_info">[{{role.name}}]</span>
         </h5>
         <p>{{ post?.body }}</p>
-        <div class="plain-row flex-content-to-the-right margin-below">
+        <div class="plain-row flex-content-to-the-right margin-below post-like-or-dislike-layout">
             <div class="likes {{ post?.opinion === 'liked' ? 'active' : '' }}">
-                <button (click)="likePost()"><span>{{ post?.likes }}</span> Like</button>
+                <span>{{ post?.likes }}</span><button (click)="likePost()"> <img src="assets/like-&-dislike-light-theme-icon.png" class="default-like-icon"></button>
             </div>
             <div class="dislikes {{ post?.opinion === 'disliked' ? 'active' : '' }}">
-                <button (click)="dislikePost()"><span>{{ post?.dislikes }}</span>
-                    Dislike</button>
+                <span>{{ post?.dislikes }}</span><button (click)="dislikePost()">
+                    <img src="assets/like-&-dislike-light-theme-icon.png" class="default-dislike-icon"></button>
             </div>
         </div>
     </ng-container>
@@ -45,7 +45,7 @@
         <h3>Loading Post...</h3>
     </ng-template>
 
-    <!-- <div class="alert alert-warning" *ngIf="currentUser ? '' : 'hidden'">
+    <!-- <div class="alert alert-warning" *ngIf="(isCommentLikeFailed || isCommentDislikeFailed) ? '' : 'hidden'">
         You cannot submit any likes or dislikes without logging in. <a routerLink="../../register">Sign Up?</a>
         Or if you already have an account, <a routerLink="../../login">Login?</a>
     </div> -->
@@ -71,15 +71,15 @@
             <p>{{ postComment?.content }}</p>
             <div class="plain-row flex-content-to-the-right margin-below">
                 <div class="likes {{ postComment?.opinion === 'liked' ? 'active' : '' }}">
-                    <span>{{ postComment?.likes }}</span><button class="" (click)="likeComment(postComment)"> <img src="assets/like-&-dislike-light-theme-icon.png" class="default-like-icon">
-                                                                                                              <img src="assets/like-hover-icon.png" class="hover-like-icon">
-                                                                                                              <img src="assets/liked-icon.png" class="submitted-like-icon"></button>
+                    <span>{{ postComment?.likes }}</span><button class="" (click)="likeComment(postComment)"> <img src="assets/like-&-dislike-light-theme-icon.png" class="default-like-icon"></button>
+                                                                                                              <!-- <img src="assets/like-hover-icon.png" class="hover-like-icon">
+                                                                                                              <img src="assets/liked-icon.png" class="submitted-like-icon"> -->
                 </div>
                 <div class="dislikes {{ postComment?.opinion === 'disliked' ? 'active' : '' }}">
                     <span>{{ postComment?.dislikes }}</span><button class="" (click)="dislikeComment(postComment)">
-                        <img src="assets/like-&-dislike-light-theme-icon.png" class="default-dislike-icon">
-                        <img src="assets/dislike-hover-icon.png" class="hover-dislike-icon">
-                        <img src="assets/disliked-icon.png" class="submitted-dislike-icon"></button>
+                        <img src="assets/like-&-dislike-light-theme-icon.png" class="default-dislike-icon"></button>
+                        <!-- <img src="assets/dislike-hover-icon.png" class="hover-dislike-icon">
+                        <img src="assets/disliked-icon.png" class="submitted-dislike-icon"> -->
                 </div>
             </div>
         </ng-container>
@@ -113,6 +113,6 @@
             Your post comment upload is successful!
         </div>
 
-        <button style="margin-top: 2vh;" id="btn-submit-post">Submit comment</button>
+        <button class="btn btn-edit" id="btn-submit-post-comment">Submit comment</button>
     </form>
 </ng-container>
